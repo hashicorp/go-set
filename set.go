@@ -3,6 +3,11 @@
 // https://en.wikipedia.org/wiki/Set_(mathematics)
 package set
 
+import (
+	"fmt"
+	"sort"
+)
+
 type nothing struct{}
 
 var sentinel = nothing{}
@@ -181,4 +186,24 @@ func (s *Set[T]) Copy() *Set[T] {
 		result.items[item] = sentinel
 	}
 	return result
+}
+
+// List creates a copy of s as a slice.
+func (s *Set[T]) List() []T {
+	result := make([]T, 0, s.Size())
+	for item := range s.items {
+		result = append(result, item)
+	}
+	return result
+}
+
+// String creates a string representation of s, using f to transform each element
+// into a string. The result contains elements sorted by their string order.
+func (s *Set[T]) String(f func(element T) string) string {
+	l := make([]string, 0, s.Size())
+	for item := range s.items {
+		l = append(l, f(item))
+	}
+	sort.Strings(l)
+	return fmt.Sprintf("%v", l)
 }

@@ -1,6 +1,7 @@
 package set
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/shoenig/test/must"
@@ -345,5 +346,50 @@ func TestSet_Copy(t *testing.T) {
 		must.True(t, b.RemoveAll([]int{1, 3}))
 		must.MapContainsKeys(t, b.items, []int{2, 4})
 		must.MapContainsKeys(t, a.items, []int{1, 2, 3, 4})
+	})
+}
+
+func TestSet_List(t *testing.T) {
+	t.Run("list empty", func(t *testing.T) {
+		a := New[string](10)
+		l := a.List()
+		must.Empty(t, l)
+	})
+
+	t.Run("list set", func(t *testing.T) {
+		a := From[string]([]string{"apple", "banana", "cherry"})
+		l := a.List()
+		must.Len(t, 3, l)
+		must.Contains(t, l, "apple")
+		must.Contains(t, l, "banana")
+		must.Contains(t, l, "cherry")
+	})
+}
+
+func TestSet_String(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		a := New[string](10)
+		s := a.String(nil)
+		must.Eq(t, "[]", s)
+	})
+
+	t.Run("int", func(t *testing.T) {
+		a := From[int]([]int{5, 2, 5, 1, 3})
+		s := a.String(func(i int) string {
+			return fmt.Sprintf("%d", i)
+		})
+		must.Eq(t, "[1 2 3 5]", s)
+	})
+
+	t.Run("custom", func(t *testing.T) {
+		a := From[employee]([]employee{
+			employee{"mitchell", 1},
+			employee{"jack", 3},
+			employee{"armon", 2},
+		})
+		s := a.String(func(e employee) string {
+			return fmt.Sprintf("(%d %s)", e.id, e.name)
+		})
+		must.Eq(t, "[(1 mitchell) (2 armon) (3 jack)]", s)
 	})
 }
