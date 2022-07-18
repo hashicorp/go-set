@@ -87,10 +87,10 @@ func (s *Set[T]) Remove(item T) bool {
 	return true
 }
 
-// RemoveItems will remove each item in items from s.
+// RemoveAll will remove each item in items from s.
 //
 // Return true if s was modified (any item was present), false otherwise.
-func (s *Set[T]) RemoveItems(items []T) bool {
+func (s *Set[T]) RemoveAll(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Remove(item) {

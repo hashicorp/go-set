@@ -288,19 +288,19 @@ func TestSet_Remove(t *testing.T) {
 func TestSet_RemoveItems(t *testing.T) {
 	t.Run("empty remove items", func(t *testing.T) {
 		s := New[int](10)
-		must.False(t, s.RemoveItems([]int{1, 2, 3}))
+		must.False(t, s.RemoveAll([]int{1, 2, 3}))
 		must.MapEmpty(t, s.items)
 	})
 
 	t.Run("set remove nothing", func(t *testing.T) {
 		s := From[int]([]int{1, 2, 3})
-		must.False(t, s.RemoveItems(nil))
+		must.False(t, s.RemoveAll(nil))
 		must.MapContainsKeys(t, s.items, []int{1, 2, 3})
 	})
 
 	t.Run("set remove some", func(t *testing.T) {
 		s := From[int]([]int{1, 2, 3, 4, 5, 6})
-		must.True(t, s.RemoveItems([]int{5, 6, 7, 8, 9}))
+		must.True(t, s.RemoveAll([]int{5, 6, 7, 8, 9}))
 		must.MapContainsKeys(t, s.items, []int{1, 2, 3, 4})
 	})
 }
@@ -342,7 +342,7 @@ func TestSet_Copy(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4})
 		b := a.Copy()
 		must.MapContainsKeys(t, b.items, []int{1, 2, 3, 4})
-		must.True(t, b.RemoveItems([]int{1, 3}))
+		must.True(t, b.RemoveAll([]int{1, 3}))
 		must.MapContainsKeys(t, b.items, []int{2, 4})
 		must.MapContainsKeys(t, a.items, []int{1, 2, 3, 4})
 	})
