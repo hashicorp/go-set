@@ -1,5 +1,7 @@
 # go-set
 
+[![Run CI Tests](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml/badge.svg)](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml)
+
 Provides the `set` package that implements a generic mathematical [set](https://en.wikipedia.org/wiki/Set) for Go. The package only provides a basic implementation that is optimized for correctness and convenience. This package is not thread-safe.
 
 # Documentation
@@ -22,7 +24,12 @@ Implements the following set operations
 - Union
 - Difference
 - Intersect
+
+Provides helper methods
+
 - Copy
+- List
+- String
 
 # Install
 
