@@ -20,6 +20,7 @@ Implements the following set operations
 - RemoveSet
 - Contains
 - ContainsAll
+- Subset
 - Size
 - Union
 - Difference
@@ -27,6 +28,7 @@ Implements the following set operations
 
 Provides helper methods
 
+- Equal
 - Copy
 - List
 - String
