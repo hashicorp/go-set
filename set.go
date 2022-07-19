@@ -126,11 +126,30 @@ func (s *Set[T]) Contains(item T) bool {
 
 // ContainsAll returns whether s contains every item in items.
 func (s *Set[T]) ContainsAll(items []T) bool {
+	if len(s.items) < len(items) {
+		return false
+	}
+
 	for _, item := range items {
 		if !s.Contains(item) {
 			return false
 		}
 	}
+	return true
+}
+
+// Subset returns whether o is a subset of s.
+func (s *Set[T]) Subset(o *Set[T]) bool {
+	if len(s.items) < len(o.items) {
+		return false
+	}
+
+	for item := range o.items {
+		if !s.Contains(item) {
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -206,4 +225,19 @@ func (s *Set[T]) String(f func(element T) string) string {
 	}
 	sort.Strings(l)
 	return fmt.Sprintf("%v", l)
+}
+
+// Equal returns whether s and o contain the same elements.
+func (s *Set[T]) Equal(o *Set[T]) bool {
+	if len(s.items) != len(o.items) {
+		return false
+	}
+
+	for item := range s.items {
+		if !o.Contains(item) {
+			return false
+		}
+	}
+
+	return true
 }

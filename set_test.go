@@ -258,9 +258,16 @@ func TestSet_Intersect(t *testing.T) {
 		must.MapEmpty(t, intersect.items)
 	})
 
-	t.Run("set ∩ other", func(t *testing.T) {
+	t.Run("big ∩ small", func(t *testing.T) {
 		a := From[int]([]int{2, 3, 4, 6, 8})
 		b := From[int]([]int{4, 5, 6, 7})
+		intersect := a.Intersect(b)
+		must.MapContainsKeys(t, intersect.items, []int{4, 6})
+	})
+
+	t.Run("small ∩ big", func(t *testing.T) {
+		a := From[int]([]int{4, 5, 6, 7})
+		b := From[int]([]int{2, 3, 4, 6, 8})
 		intersect := a.Intersect(b)
 		must.MapContainsKeys(t, intersect.items, []int{4, 6})
 	})
@@ -391,5 +398,70 @@ func TestSet_String(t *testing.T) {
 			return fmt.Sprintf("(%d %s)", e.id, e.name)
 		})
 		must.Eq(t, "[(1 mitchell) (2 armon) (3 jack)]", s)
+	})
+}
+
+func TestSet_Equal(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := New[int](0)
+		b := New[int](10)
+		must.True(t, a.Equal(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := New[int](0)
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.Equal(b))
+	})
+
+	t.Run("same", func(t *testing.T) {
+		a := From[int]([]int{3, 2, 1})
+		b := From[int]([]int{1, 2, 3})
+		must.True(t, a.Equal(b))
+	})
+
+	t.Run("subset", func(t *testing.T) {
+		a := From[int]([]int{2, 3})
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.Equal(b))
+		must.False(t, b.Equal(a))
+	})
+}
+
+func TestSet_Subset(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := New[int](0)
+		b := New[int](0)
+		must.True(t, a.Subset(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := New[int](0)
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.Subset(b))
+	})
+
+	t.Run("some empty", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := New[int](0)
+		must.True(t, a.Subset(b))
+	})
+
+	t.Run("equal", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{2, 3, 1})
+		must.True(t, a.Subset(b))
+	})
+
+	t.Run("subset", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{3, 1})
+		must.True(t, a.Subset(b))
+	})
+
+	t.Run("superset", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{3, 1, 2, 4})
+		must.False(t, a.Subset(b))
 	})
 }
