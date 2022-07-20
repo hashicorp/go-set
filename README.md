@@ -6,7 +6,33 @@ Provides the `set` package that implements a generic mathematical [set](https://
 
 # Documentation
 
-The full documentation is available on GoDoc.
+The full documentation is available on [pkg.dev](https://pkg.go.dev/github.com/hashicorp/go-set).
+
+# Motivation
+
+Package `set` helps reduce the boiler plate of using a `map[<type>]struct{}` as a set.
+
+Say we want to de-duplicate a slice of strings
+```go
+items := []string{"mitchell", "armon", "jack", "dave", "armon", "dave"}
+```
+
+A typical example of the classic way using `map` built-in:
+```go
+m := make(map[string]struct{})
+for _, item := range items {
+  m[item] = struct{}{}
+}
+list := make([]string, 0, len(items))
+for k := range m {
+  list = append(list, k)
+}
+```
+
+The same result, but in one line using package `go-set`.
+```go
+list := set.From[string](items).List()
+```
 
 ### Methods
 
