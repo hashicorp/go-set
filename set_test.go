@@ -41,6 +41,16 @@ func TestSet_From(t *testing.T) {
 	})
 }
 
+func TestSet_FromFunc(t *testing.T) {
+	employees := []employee{
+		{"alice", 1}, {"bob", 2}, {"bob", 2}, {"carol", 3}, {"dave", 4},
+	}
+	s := FromFunc(employees, func(e employee) string {
+		return e.name
+	})
+	must.MapContainsKeys(t, s.items, []string{"alice", "bob", "carol", "dave"})
+}
+
 func TestSet_Insert(t *testing.T) {
 	t.Run("one int", func(t *testing.T) {
 		s := New[int](10)
