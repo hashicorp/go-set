@@ -36,6 +36,15 @@ func From[T comparable](items []T) *Set[T] {
 	return s
 }
 
+// FromFunc creates a new Set containing a conversion of each item in items.
+func FromFunc[A any, T comparable](items []A, conversion func(A) T) *Set[T] {
+	s := New[T](len(items))
+	for _, item := range items {
+		s.Insert(conversion(item))
+	}
+	return s
+}
+
 // Set is a simple, generic implementation of the set mathematical data structure.
 // It is optimized for correctness and convenience, as a replacement for the use
 // of map[interface{}]struct{}.
