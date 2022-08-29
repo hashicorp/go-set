@@ -133,7 +133,7 @@ func (s *Set[T]) Contains(item T) bool {
 	return exists
 }
 
-// ContainsAll returns whether s contains every item in items.
+// ContainsAll returns whether s contains at least every item in items.
 func (s *Set[T]) ContainsAll(items []T) bool {
 	if len(s.items) < len(items) {
 		return false
@@ -145,6 +145,15 @@ func (s *Set[T]) ContainsAll(items []T) bool {
 		}
 	}
 	return true
+}
+
+// ContainsSlice returns whether s contains the same set of of elements
+// that are in items. The elements of items may contain duplicates.
+//
+// If the slice is known to be set-like (no duplicates), EqualSlice provides
+// a more efficient implementation.
+func (s *Set[T]) ContainsSlice(items []T) bool {
+	return s.Equal(From(items))
 }
 
 // Subset returns whether o is a subset of s.
@@ -249,4 +258,16 @@ func (s *Set[T]) Equal(o *Set[T]) bool {
 	}
 
 	return true
+}
+
+// EqualSlice returns whether s and items contain the same elements.
+//
+// If items contains duplicates EqualSlice will return false; it is
+// assumed that items is itself set-like. For comparing equality with
+// a slice that may contain duplicates, use ContainsSlice.
+func (s *Set[T]) EqualSlice(items []T) bool {
+	if len(s.items) != len(items) {
+		return false
+	}
+	return s.ContainsAll(items)
 }
