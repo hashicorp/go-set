@@ -250,3 +250,11 @@ func (s *Set[T]) Equal(o *Set[T]) bool {
 
 	return true
 }
+
+// EqualSlice returns whether s and items contain the same elements.
+func (s *Set[T]) EqualSlice(items []T) bool {
+	if len(s.items) != len(items) {
+		return false
+	}
+	return s.ContainsAll(items)
+}
