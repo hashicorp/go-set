@@ -23,6 +23,9 @@ func max(a, b int) int {
 //
 // A Set will automatically grow or shrink its capacity as items are added or
 // removed.
+//
+// T must *not* be of pointer type, nor contain pointer fields, which are comparable
+// but not in the way you expect. For these types, use HashSet instead.
 func New[T comparable](size int) *Set[T] {
 	return &Set[T]{
 		items: make(map[T]nothing, max(0, size)),
@@ -30,6 +33,9 @@ func New[T comparable](size int) *Set[T] {
 }
 
 // From creates a new Set containing each item in items.
+//
+// T must *not* be of pointer type, nor contain pointer fields, which are comparable
+// but not in the way you expect. For these types, use HashSet instead.
 func From[T comparable](items []T) *Set[T] {
 	s := New[T](len(items))
 	s.InsertAll(items)
@@ -37,6 +43,9 @@ func From[T comparable](items []T) *Set[T] {
 }
 
 // FromFunc creates a new Set containing a conversion of each item in items.
+//
+// T must *not* be of pointer type, nor contain pointer fields, which are comparable
+// but not in the way you expect. For these types, use HashSet instead.
 func FromFunc[A any, T comparable](items []A, conversion func(A) T) *Set[T] {
 	s := New[T](len(items))
 	for _, item := range items {
@@ -96,7 +105,6 @@ func (s *Set[T]) Remove(item T) bool {
 	if _, exists := s.items[item]; !exists {
 		return false
 	}
-
 	delete(s.items, item)
 	return true
 }
@@ -127,7 +135,7 @@ func (s *Set[T]) RemoveSet(o *Set[T]) bool {
 	return modified
 }
 
-// Contains returns whether item is present in the set.
+// Contains returns whether item is present in s.
 func (s *Set[T]) Contains(item T) bool {
 	_, exists := s.items[item]
 	return exists
@@ -138,7 +146,6 @@ func (s *Set[T]) ContainsAll(items []T) bool {
 	if len(s.items) < len(items) {
 		return false
 	}
-
 	for _, item := range items {
 		if !s.Contains(item) {
 			return false
@@ -153,7 +160,7 @@ func (s *Set[T]) ContainsAll(items []T) bool {
 // If the slice is known to be set-like (no duplicates), EqualSlice provides
 // a more efficient implementation.
 func (s *Set[T]) ContainsSlice(items []T) bool {
-	return s.Equal(From(items))
+	return s.Equal(From[T](items))
 }
 
 // Subset returns whether o is a subset of s.
@@ -161,13 +168,11 @@ func (s *Set[T]) Subset(o *Set[T]) bool {
 	if len(s.items) < len(o.items) {
 		return false
 	}
-
 	for item := range o.items {
 		if !s.Contains(item) {
 			return false
 		}
 	}
-
 	return true
 }
 
@@ -202,12 +207,10 @@ func (s *Set[T]) Difference(o *Set[T]) *Set[T] {
 // Intersect returns a set that contains elements that are present in both s and o.
 func (s *Set[T]) Intersect(o *Set[T]) *Set[T] {
 	result := New[T](0)
-
 	big, small := s, o
 	if s.Size() < o.Size() {
 		big, small = o, s
 	}
-
 	for item := range small.items {
 		if big.Contains(item) {
 			result.Insert(item)
@@ -242,7 +245,7 @@ func (s *Set[T]) String(f func(element T) string) string {
 		l = append(l, f(item))
 	}
 	sort.Strings(l)
-	return fmt.Sprintf("%v", l)
+	return fmt.Sprintf("%s", l)
 }
 
 // Equal returns whether s and o contain the same elements.

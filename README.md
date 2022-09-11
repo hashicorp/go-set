@@ -34,6 +34,14 @@ The same result, but in one line using package `go-set`.
 list := set.From[string](items).List()
 ```
 
+# Hash Function
+
+In addition to `Set`, there is `HashSet` for types that implement a `Hash()` function.
+The custom type must satisfy `HashFunc[H Hash]` - essentially any `Hash()`
+function that returns a `string` or `integer`. This enables types to use string-y
+hash functions like `md5`, `sha1`, or even `GoString()`, but also enables types
+to implement an efficient hash function using a hash code based on prime multiples.
+
 ### Methods
 
 Implements the following set operations
@@ -69,9 +77,9 @@ go get github.com/hashicorp/go-set@latest
 import "github.com/hashicorp/go-set"
 ```
 
-# Example
+# Set Examples
 
-Below are simple example of usages
+Below are simple example usages of `Set`
 
 ```go
 s := set.New[int](10)
@@ -91,4 +99,41 @@ s.Remove("one") # true
 a := set.From[int]([]int{2, 4, 6, 8})
 b := set.From[int]([]int{4, 5, 6})
 a.Intersect(b) # {4, 6}
+```
+
+# HashSet Examples
+
+Below are simple example usages of `HashSet`
+
+(using a hash code)
+```
+type inventory struct {
+    item   int
+    serial int
+}
+
+func (i *inventory) Hash() int {
+    code := 3 * item * 5 * serial
+    return code
+}
+
+i1 := &inventory{item: 42, serial: 101}
+s := set.NewHashSet[*inventory, int](10)
+s.Insert(i1)
+```
+
+(using a string hash)
+```
+type employee struct {
+    name string
+    id   int
+}
+
+func (e *employee) Hash() string {
+    return fmt.Sprintf("%s:%d", e.name, e.id)
+}
+
+e1 := &employee{name: "armon", id: 2}
+s := set.NewHashSet[*employee, string](10)
+s.Insert(e1)
 ```
