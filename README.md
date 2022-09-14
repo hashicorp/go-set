@@ -106,7 +106,7 @@ a.Intersect(b) # {4, 6}
 Below are simple example usages of `HashSet`
 
 (using a hash code)
-```
+```go
 type inventory struct {
     item   int
     serial int
@@ -118,12 +118,13 @@ func (i *inventory) Hash() int {
 }
 
 i1 := &inventory{item: 42, serial: 101}
+
 s := set.NewHashSet[*inventory, int](10)
 s.Insert(i1)
 ```
 
 (using a string hash)
-```
+```go
 type employee struct {
     name string
     id   int
@@ -134,6 +135,7 @@ func (e *employee) Hash() string {
 }
 
 e1 := &employee{name: "armon", id: 2}
+
 s := set.NewHashSet[*employee, string](10)
 s.Insert(e1)
 ```
