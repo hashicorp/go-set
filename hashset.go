@@ -211,7 +211,7 @@ func (s *HashSet[T, H]) Intersect(o *HashSet[T, H]) *HashSet[T, H] {
 	return result
 }
 
-// Copy creates a copy of s.
+// Copy creates a shallow copy of s.
 func (s *HashSet[T, H]) Copy() *HashSet[T, H] {
 	result := NewHashSet[T, H](s.Size())
 	for key, item := range s.items {
