@@ -8,7 +8,7 @@ Provides the `set` package that implements a generic mathematical [set](https://
 
 # Documentation
 
-The full documentation is available on [pkg.dev](https://pkg.go.dev/github.com/hashicorp/go-set).
+The full documentation is available on [pkg.go.dev](https://pkg.go.dev/github.com/hashicorp/go-set).
 
 # Motivation
 
