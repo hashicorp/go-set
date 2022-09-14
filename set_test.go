@@ -353,8 +353,8 @@ func TestSet_Remove(t *testing.T) {
 	})
 }
 
-func TestSet_RemoveItems(t *testing.T) {
-	t.Run("empty remove items", func(t *testing.T) {
+func TestSet_RemoveAll(t *testing.T) {
+	t.Run("empty remove all", func(t *testing.T) {
 		s := New[int](10)
 		must.False(t, s.RemoveAll([]int{1, 2, 3}))
 		must.MapEmpty(t, s.items)
@@ -381,14 +381,14 @@ func TestSet_RemoveSet(t *testing.T) {
 		must.MapEmpty(t, a.items)
 	})
 
-	t.Run("empty remove set", func(t *testing.T) {
+	t.Run("empty remove some", func(t *testing.T) {
 		a := New[int](0)
 		b := From[int]([]int{1, 2, 3, 4})
 		must.False(t, a.RemoveSet(b))
 		must.MapEmpty(t, a.items)
 	})
 
-	t.Run("set remove other", func(t *testing.T) {
+	t.Run("set remove some", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4, 5, 6, 7, 8})
 		b := From[int]([]int{2, 4, 6, 8})
 		must.True(t, a.RemoveSet(b))
@@ -450,9 +450,9 @@ func TestSet_String(t *testing.T) {
 
 	t.Run("custom", func(t *testing.T) {
 		a := From[employee]([]employee{
-			employee{"mitchell", 1},
-			employee{"jack", 3},
-			employee{"armon", 2},
+			{"mitchell", 1},
+			{"jack", 3},
+			{"armon", 2},
 		})
 		s := a.String(func(e employee) string {
 			return fmt.Sprintf("(%d %s)", e.id, e.name)
