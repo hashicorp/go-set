@@ -575,3 +575,10 @@ func TestSet_EqualSlice(t *testing.T) {
 		must.False(t, a.EqualSlice(b))
 	})
 }
+
+func TestSet_GoString(t *testing.T) {
+	t.Run("example", func(t *testing.T) {
+		s := From[string]([]string{"a", "b", "c"})
+		fmt.Println(s) // segfault
+	})
+}
