@@ -14,6 +14,10 @@ type company struct {
 	floor   int
 }
 
+func (c *company) Equal(o *company) bool {
+	return c.address == o.address && c.floor == o.floor
+}
+
 func (c *company) Hash() string {
 	return fmt.Sprintf("%s:%d", c.address, c.floor)
 }
@@ -430,15 +434,15 @@ func TestHashSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
 		l := a.List()
-		must.Empty(t, l)
+		must.SliceEmpty(t, l)
 	})
 
 	t.Run("list set", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2})
 		l := a.List()
-		must.Len(t, 2, l)
-		must.Contains(t, l, c1)
-		must.Contains(t, l, c2)
+		must.Len[*company](t, 2, l)
+		must.SliceContainsEqual[*company](t, l, c1)
+		must.SliceContainsEqual[*company](t, l, c2)
 	})
 }
 
