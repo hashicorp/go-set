@@ -147,10 +147,10 @@ func TestSet_Contains(t *testing.T) {
 		must.True(t, s.Insert(employee{"mitchell", 1}))
 		must.True(t, s.Insert(employee{"armon", 2}))
 		must.True(t, s.Insert(employee{"jack", 3}))
-		must.True(t, s.Contains(employee{"mitchell", 1}))
-		must.True(t, s.Contains(employee{"armon", 2}))
-		must.True(t, s.Contains(employee{"jack", 3}))
-		must.False(t, s.Contains(employee{"dave", 27}))
+		must.Contains[employee](t, employee{"mitchell", 1}, s)
+		must.Contains[employee](t, employee{"armon", 2}, s)
+		must.Contains[employee](t, employee{"jack", 3}, s)
+		must.NotContains[employee](t, employee{"dave", 27}, s)
 	})
 }
 
@@ -420,16 +420,16 @@ func TestSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := New[string](10)
 		l := a.List()
-		must.Empty(t, l)
+		must.SliceEmpty(t, l)
 	})
 
 	t.Run("list set", func(t *testing.T) {
 		a := From[string]([]string{"apple", "banana", "cherry"})
 		l := a.List()
 		must.Len(t, 3, l)
-		must.Contains(t, l, "apple")
-		must.Contains(t, l, "banana")
-		must.Contains(t, l, "cherry")
+		must.SliceContains(t, l, "apple")
+		must.SliceContains(t, l, "banana")
+		must.SliceContains(t, l, "cherry")
 	})
 }
 
