@@ -58,6 +58,7 @@ Implements the following set operations
 - ContainsAll
 - Subset
 - Size
+- Empty
 - Union
 - Difference
 - Intersect

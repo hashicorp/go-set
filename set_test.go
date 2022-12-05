@@ -232,6 +232,18 @@ func TestSet_Size(t *testing.T) {
 	})
 }
 
+func TestSet_Empty(t *testing.T) {
+	t.Run("is empty", func(t *testing.T) {
+		s := New[int](10)
+		must.Empty(t, s)
+	})
+
+	t.Run("is not empty", func(t *testing.T) {
+		s := From[int]([]int{1, 2, 3, 4})
+		must.NotEmpty(t, s)
+	})
+}
+
 func TestSet_Union(t *testing.T) {
 	t.Run("empty ∪ empty", func(t *testing.T) {
 		a := New[int](0)
