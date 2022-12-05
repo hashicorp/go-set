@@ -173,6 +173,11 @@ func (s *HashSet[T, H]) Size() int {
 	return len(s.items)
 }
 
+// Empty returns true if s contains no elements, false otherwise.
+func (s *HashSet[T, H]) Empty() bool {
+	return s.Size() == 0
+}
+
 // Union returns a set that contains all elements of s and o combined.
 func (s *HashSet[T, H]) Union(o *HashSet[T, H]) *HashSet[T, H] {
 	result := NewHashSet[T, H](s.Size())

@@ -181,6 +181,11 @@ func (s *Set[T]) Size() int {
 	return len(s.items)
 }
 
+// Empty returns true if s contains no elements, false otherwise.
+func (s *Set[T]) Empty() bool {
+	return s.Size() == 0
+}
+
 // Union returns a set that contains all elements of s and o combined.
 func (s *Set[T]) Union(o *Set[T]) *Set[T] {
 	result := New[T](s.Size())

@@ -331,6 +331,20 @@ func TestHashSet_Size(t *testing.T) {
 	})
 }
 
+func TestHashSet_Empty(t *testing.T) {
+	t.Run("is empty", func(t *testing.T) {
+		s := NewHashSet[*company, string](10)
+		must.Empty(t, s)
+	})
+
+	t.Run("is not empty", func(t *testing.T) {
+		s := NewHashSet[*company, string](10)
+		must.True(t, s.Insert(c1))
+		must.True(t, s.Insert(c2))
+		must.NotEmpty(t, s)
+	})
+}
+
 func TestHashSet_Difference(t *testing.T) {
 	t.Run("empty \\ empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
