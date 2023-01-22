@@ -22,6 +22,10 @@ func (c *company) Hash() string {
 	return fmt.Sprintf("%s:%d", c.address, c.floor)
 }
 
+func (c *company) String() string {
+	return fmt.Sprintf("<%s %d>", c.address, c.floor)
+}
+
 var (
 	c1  = &company{address: "street", floor: 1}
 	c2  = &company{address: "street", floor: 2}
@@ -477,15 +481,21 @@ func TestHashSet_List(t *testing.T) {
 }
 
 func TestHashSet_String(t *testing.T) {
+	a := HashSetFrom[*company, string]([]*company{c2, c1})
+	result := a.String()
+	must.Eq(t, "[<street 1> <street 2>]", result)
+}
+
+func TestHashSet_StringFunc(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
-		s := a.String(nil)
+		s := a.StringFunc(nil)
 		must.Eq(t, "[]", s)
 	})
 
 	t.Run("some", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2})
-		s := a.String(func(c *company) string {
+		s := a.StringFunc(func(c *company) string {
 			return fmt.Sprintf("(%s %d)", c.address, c.floor)
 		})
 		must.Eq(t, "[(street 1) (street 2)]", s)

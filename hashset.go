@@ -241,9 +241,18 @@ func (s *HashSet[T, H]) List() []T {
 	return s.Slice()
 }
 
-// String creates a string representation of s, using f to transform each element
+// String creates a string representation of s, using "%v" printf formatting to transform
+// each element into a string. The result contains elements sorted by their lexical
+// string order.
+func (s *HashSet[T, H]) String() string {
+	return s.StringFunc(func(element T) string {
+		return fmt.Sprintf("%v", element)
+	})
+}
+
+// StringFunc creates a string representation of s, using f to transform each element
 // into a string. The result contains elements sorted by their string order.
-func (s *HashSet[T, H]) String(f func(element T) string) string {
+func (s *HashSet[T, H]) StringFunc(f func(element T) string) string {
 	l := make([]string, 0, s.Size())
 	for _, item := range s.items {
 		l = append(l, f(item))
