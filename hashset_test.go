@@ -444,6 +444,22 @@ func TestHashSet_Copy(t *testing.T) {
 	})
 }
 
+func TestHashSet_Slice(t *testing.T) {
+	t.Run("slice empty", func(t *testing.T) {
+		a := NewHashSet[*company, string](10)
+		l := a.Slice()
+		must.SliceEmpty(t, l)
+	})
+
+	t.Run("slice set", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2})
+		l := a.Slice()
+		must.Len(t, 2, l)
+		must.SliceContainsEqual(t, l, c1)
+		must.SliceContainsEqual(t, l, c2)
+	})
+}
+
 func TestHashSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
@@ -454,9 +470,9 @@ func TestHashSet_List(t *testing.T) {
 	t.Run("list set", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2})
 		l := a.List()
-		must.Len[*company](t, 2, l)
-		must.SliceContainsEqual[*company](t, l, c1)
-		must.SliceContainsEqual[*company](t, l, c2)
+		must.Len(t, 2, l)
+		must.SliceContainsEqual(t, l, c1)
+		must.SliceContainsEqual(t, l, c2)
 	})
 }
 

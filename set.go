@@ -233,13 +233,20 @@ func (s *Set[T]) Copy() *Set[T] {
 	return result
 }
 
-// List creates a copy of s as a slice.
-func (s *Set[T]) List() []T {
+// Slice creates a copy of s as a slice. Elements are in no particular order.
+func (s *Set[T]) Slice() []T {
 	result := make([]T, 0, s.Size())
 	for item := range s.items {
 		result = append(result, item)
 	}
 	return result
+}
+
+// List creates a copy of s as a slice.
+//
+// Deprecated: use Slice() instead.
+func (s *Set[T]) List() []T {
+	return s.Slice()
 }
 
 // String creates a string representation of s, using f to transform each element

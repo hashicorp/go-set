@@ -225,13 +225,20 @@ func (s *HashSet[T, H]) Copy() *HashSet[T, H] {
 	return result
 }
 
-// List creates a copy of s as a slice.
-func (s *HashSet[T, H]) List() []T {
+// Slice creates a copy of s as a slice.
+func (s *HashSet[T, H]) Slice() []T {
 	result := make([]T, 0, s.Size())
 	for _, item := range s.items {
 		result = append(result, item)
 	}
 	return result
+}
+
+// List creates a copy of s as a slice.
+//
+// Deprecated: use Slice() instead.
+func (s *HashSet[T, H]) List() []T {
+	return s.Slice()
 }
 
 // String creates a string representation of s, using f to transform each element
