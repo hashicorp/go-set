@@ -428,6 +428,23 @@ func TestSet_Copy(t *testing.T) {
 	})
 }
 
+func TestSet_Slice(t *testing.T) {
+	t.Run("slice empty", func(t *testing.T) {
+		a := New[string](10)
+		l := a.Slice()
+		must.SliceEmpty(t, l)
+	})
+
+	t.Run("slice set", func(t *testing.T) {
+		a := From([]string{"apple", "banana", "cherry"})
+		l := a.Slice()
+		must.Len(t, 3, l)
+		must.SliceContains(t, l, "apple")
+		must.SliceContains(t, l, "banana")
+		must.SliceContains(t, l, "cherry")
+	})
+}
+
 func TestSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := New[string](10)
@@ -436,7 +453,7 @@ func TestSet_List(t *testing.T) {
 	})
 
 	t.Run("list set", func(t *testing.T) {
-		a := From[string]([]string{"apple", "banana", "cherry"})
+		a := From([]string{"apple", "banana", "cherry"})
 		l := a.List()
 		must.Len(t, 3, l)
 		must.SliceContains(t, l, "apple")
