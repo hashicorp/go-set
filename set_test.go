@@ -12,6 +12,10 @@ type employee struct {
 	id   int
 }
 
+func (e *employee) String() string {
+	return fmt.Sprintf("(%d %s)", e.id, e.name)
+}
+
 func TestSet_New(t *testing.T) {
 	t.Run("positive", func(t *testing.T) {
 		s := New[float64](1)
@@ -463,27 +467,41 @@ func TestSet_List(t *testing.T) {
 }
 
 func TestSet_String(t *testing.T) {
+	t.Run("ints", func(t *testing.T) {
+		a := From([]int{1, 2, 3})
+		result := a.String()
+		must.Eq(t, "[1 2 3]", result)
+	})
+
+	t.Run("custom", func(t *testing.T) {
+		a := From([]*employee{{"bob", 2}, {"alice", 1}, {"carl", 3}})
+		result := a.String()
+		must.Eq(t, "[(1 alice) (2 bob) (3 carl)]", result)
+	})
+}
+
+func TestSet_StringFunc(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		a := New[string](10)
-		s := a.String(nil)
+		s := a.StringFunc(nil)
 		must.Eq(t, "[]", s)
 	})
 
 	t.Run("int", func(t *testing.T) {
-		a := From[int]([]int{5, 2, 5, 1, 3})
-		s := a.String(func(i int) string {
+		a := From([]int{5, 2, 5, 1, 3})
+		s := a.StringFunc(func(i int) string {
 			return fmt.Sprintf("%d", i)
 		})
 		must.Eq(t, "[1 2 3 5]", s)
 	})
 
 	t.Run("custom", func(t *testing.T) {
-		a := From[employee]([]employee{
+		a := From([]employee{
 			{"mitchell", 1},
 			{"jack", 3},
 			{"armon", 2},
 		})
-		s := a.String(func(e employee) string {
+		s := a.StringFunc(func(e employee) string {
 			return fmt.Sprintf("(%d %s)", e.id, e.name)
 		})
 		must.Eq(t, "[(1 mitchell) (2 armon) (3 jack)]", s)
