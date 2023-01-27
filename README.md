@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/hashicorp/go-set.svg)](https://pkg.go.dev/github.com/hashicorp/go-set)
 [![Run CI Tests](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml/badge.svg)](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml)
-![GitHub](https://img.shields.io/github/license/hashicorp/go-set)
+[![GitHub](https://img.shields.io/github/license/hashicorp/go-set)](LICENSE)
 
 Provides the `set` package that implements a generic mathematical [set](https://en.wikipedia.org/wiki/Set) for Go. The package only provides a basic implementation that is optimized for correctness and convenience. This package is not thread-safe.
 
