@@ -1,6 +1,8 @@
 package set
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"sort"
 )
@@ -284,4 +286,40 @@ func (s *HashSet[T, H]) EqualSlice(items []T) bool {
 		return false
 	}
 	return s.ContainsAll(items)
+}
+
+// MarshalJSON encodes s as a JSON array. Each element is encoded individually
+// via json.Marshal(). There is no specific order of the elements in the resulting
+// JSON array. Elements in s must be compatible with Go JSON encoding.
+func (s *HashSet[T, H]) MarshalJSON() ([]byte, error) {
+	var b bytes.Buffer
+	b.WriteByte('[')
+	i := 0
+	for _, value := range s.items {
+		x, err := json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+		b.Write(x)
+		i++
+		if i != len(s.items) {
+			b.WriteByte(',')
+		}
+	}
+	b.WriteByte(']')
+	return b.Bytes(), nil
+}
+
+// UnmarshalJSON decodes JSON array b into HashSet s. Any previous data in s will
+// be lost. Elements of type T must be compatible with Go JSON encoding.
+func (s *HashSet[T, H]) UnmarshalJSON(b []byte) error {
+	var array []T
+	if err := json.Unmarshal(b, &array); err != nil {
+		return err
+	}
+	s.items = make(map[H]T, len(array))
+	for _, item := range array {
+		s.items[item.Hash()] = item
+	}
+	return nil
 }

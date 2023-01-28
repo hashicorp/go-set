@@ -1,6 +1,7 @@
 package set
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -14,6 +15,29 @@ type employee struct {
 
 func (e *employee) String() string {
 	return fmt.Sprintf("(%d %s)", e.id, e.name)
+}
+
+type container struct {
+	Label   string    `json:"label"`
+	Numbers *Set[int] `json:"numbers"`
+}
+
+func (c *container) Equal(o *container) bool {
+	if c == nil || o == nil {
+		return c == o
+	}
+	switch {
+	case c.Label != o.Label:
+		return false
+	case !c.Numbers.Equal(o.Numbers):
+		return false
+	default:
+		return true
+	}
+}
+
+func (c *container) Hash() string {
+	return c.Label
 }
 
 func TestSet_New(t *testing.T) {
@@ -620,5 +644,116 @@ func TestSet_EqualSlice(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4, 5})
 		b := []int{1, 2, 2, 3, 3, 4, 5}
 		must.False(t, a.EqualSlice(b))
+	})
+}
+
+func TestSet_MarshalJSON(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		s := New[int](10)
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		must.EqJSON(t, "[]", string(result))
+	})
+
+	t.Run("int", func(t *testing.T) {
+		s := From([]int{2, 4, 6})
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		must.SliceContains(t, []string{
+			"[2,4,6]", "[2,6,4]",
+			"[4,2,6]", "[4,6,2]",
+			"[6,2,4]", "[6,4,2]",
+		}, string(result))
+	})
+
+	t.Run("string", func(t *testing.T) {
+		s := From([]string{"apple", "banana", "cherry"})
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		must.SliceContains(t, []string{
+			`["apple","banana","cherry"]`,
+			`["apple","cherry","banana"]`,
+			`["banana","apple","cherry"]`,
+			`["banana","cherry","apple"]`,
+			`["cherry","apple","banana"]`,
+			`["cherry","banana","apple"]`,
+		}, string(result))
+	})
+
+	t.Run("custom", func(t *testing.T) {
+		type team struct {
+			Name  string `json:"name"`
+			Score int    `json:"score"`
+		}
+		s := From([]team{team{Name: "Brazil", Score: 1840}})
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		must.EqJSON(t, `[{"name": "Brazil", "score": 1840}]`, string(result))
+	})
+
+	t.Run("embed", func(t *testing.T) {
+		c := &container{
+			Label:   "hello",
+			Numbers: From([]int{42}),
+		}
+		b, err := json.Marshal(c)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, b)
+		must.EqJSON(t, `{"label":"hello","numbers":[42]}`, string(b))
+	})
+}
+
+func TestSet_UnmarshalJSON(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		array := []byte(`[]`)
+		s := new(Set[struct{}])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Empty(t, s)
+	})
+
+	t.Run("int", func(t *testing.T) {
+		array := []byte(`[1, 2, 3]`)
+		s := new(Set[int])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Equal(t, From([]int{1, 2, 3}), s)
+	})
+
+	t.Run("string", func(t *testing.T) {
+		array := []byte(`["foo", "bar"]`)
+		s := new(Set[string])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Equal(t, From([]string{"foo", "bar"}), s)
+	})
+
+	t.Run("custom", func(t *testing.T) {
+		type team struct {
+			Name  string `json:"name"`
+			Score int    `json:"score"`
+		}
+		array := []byte(`[{"name": "A", "score": 1}, {"name": "B", "score": 2}]`)
+		s := new(Set[team])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Equal(t, From([]team{
+			{Name: "A", Score: 1}, {Name: "B", Score: 2},
+		}), s)
+	})
+
+	t.Run("embed", func(t *testing.T) {
+		c := new(container)
+		s := []byte(`{"label":"hello","numbers":[9, 5, 3]}`)
+		err := json.Unmarshal(s, c)
+		must.NoError(t, err)
+		must.Equal(t, &container{
+			Label:   "hello",
+			Numbers: From([]int{3, 5, 9}),
+		}, c)
 	})
 }

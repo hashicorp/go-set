@@ -1,6 +1,7 @@
 package set
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -10,32 +11,32 @@ import (
 // company is an example type that is not comparable, and implements Hash() string
 type company struct {
 	_       func() // not comparable
-	address string
-	floor   int
+	Address string
+	Floor   int
 }
 
 func (c *company) Equal(o *company) bool {
-	return c.address == o.address && c.floor == o.floor
+	return c.Address == o.Address && c.Floor == o.Floor
 }
 
 func (c *company) Hash() string {
-	return fmt.Sprintf("%s:%d", c.address, c.floor)
+	return fmt.Sprintf("%s:%d", c.Address, c.Floor)
 }
 
 func (c *company) String() string {
-	return fmt.Sprintf("<%s %d>", c.address, c.floor)
+	return fmt.Sprintf("<%s %d>", c.Address, c.Floor)
 }
 
 var (
-	c1  = &company{address: "street", floor: 1}
-	c2  = &company{address: "street", floor: 2}
-	c3  = &company{address: "street", floor: 3}
-	c4  = &company{address: "street", floor: 4}
-	c5  = &company{address: "street", floor: 5}
-	c6  = &company{address: "street", floor: 6}
-	c7  = &company{address: "street", floor: 7}
-	c8  = &company{address: "street", floor: 8}
-	c10 = &company{address: "street", floor: 10}
+	c1  = &company{Address: "street", Floor: 1}
+	c2  = &company{Address: "street", Floor: 2}
+	c3  = &company{Address: "street", Floor: 3}
+	c4  = &company{Address: "street", Floor: 4}
+	c5  = &company{Address: "street", Floor: 5}
+	c6  = &company{Address: "street", Floor: 6}
+	c7  = &company{Address: "street", Floor: 7}
+	c8  = &company{Address: "street", Floor: 8}
+	c10 = &company{Address: "street", Floor: 10}
 )
 
 // coded is an example type that maintains its own hash code, implementing Hash() int
@@ -496,7 +497,7 @@ func TestHashSet_StringFunc(t *testing.T) {
 	t.Run("some", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2})
 		s := a.StringFunc(func(c *company) string {
-			return fmt.Sprintf("(%s %d)", c.address, c.floor)
+			return fmt.Sprintf("(%s %d)", c.Address, c.Floor)
 		})
 		must.Eq(t, "[(street 1) (street 2)]", s)
 	})
@@ -560,4 +561,47 @@ func TestHashSet_HashCode(t *testing.T) {
 	must.True(t, a.Contains(s1))
 	must.True(t, a.Contains(s2))
 	must.False(t, a.Contains(s3))
+}
+
+func TestHashSet_MarshalJSON(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		s := NewHashSet[*company, string](10)
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		must.EqJSON(t, "[]", string(result))
+	})
+
+	t.Run("company", func(t *testing.T) {
+		s := HashSetFrom[*company, string]([]*company{
+			c1, c2, c3,
+		})
+		result, err := json.Marshal(s)
+		must.NoError(t, err)
+		must.ValidJSONBytes(t, result)
+		str := string(result)
+		must.StrContains(t, str, `{"Address":"street","Floor":1}`)
+		must.StrContains(t, str, `{"Address":"street","Floor":2}`)
+		must.StrContains(t, str, `{"Address":"street","Floor":3}`)
+	})
+}
+
+func TestHashSet_UnmarshalJSON(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		array := []byte(`[]`)
+		s := new(HashSet[*company, string])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Empty(t, s)
+	})
+
+	t.Run("company", func(t *testing.T) {
+		array := []byte(`[{"Address":"street","Floor":1}, {"Address":"street","Floor":2}]`)
+		s := new(HashSet[*company, string])
+		err := json.Unmarshal(array, s)
+		must.NoError(t, err)
+		must.Equal(t, HashSetFrom[*company, string]([]*company{
+			{Address: "street", Floor: 1}, {Address: "street", Floor: 2},
+		}), s)
+	})
 }

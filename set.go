@@ -4,6 +4,8 @@
 package set
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"sort"
 )
@@ -249,7 +251,7 @@ func (s *Set[T]) List() []T {
 	return s.Slice()
 }
 
-// String creates a string representation of s, using "%v" printf formating to transform
+// String creates a string representation of s, using "%v" printf formatting to transform
 // each element into a string. The result contains elements sorted by their lexical
 // string order.
 func (s *Set[T]) String() string {
@@ -294,4 +296,40 @@ func (s *Set[T]) EqualSlice(items []T) bool {
 		return false
 	}
 	return s.ContainsAll(items)
+}
+
+// MarshalJSON encodes s as a JSON array. Each element is encoded individually
+// via json.Marshal(). There is no specific order of the elements in the resulting
+// JSON array. Elements in s must be compatible with Go JSON encoding.
+func (s *Set[T]) MarshalJSON() ([]byte, error) {
+	var b bytes.Buffer
+	b.WriteByte('[')
+	i := 0
+	for item := range s.items {
+		x, err := json.Marshal(item)
+		if err != nil {
+			return nil, err
+		}
+		b.Write(x)
+		i++
+		if i != len(s.items) {
+			b.WriteByte(',')
+		}
+	}
+	b.WriteByte(']')
+	return b.Bytes(), nil
+}
+
+// UnmarshalJSON decodes JSON array b into Set s. Any previous data in s will
+// be lost. Elements of type T must be compatible with Go JSON encoding.
+func (s *Set[T]) UnmarshalJSON(b []byte) error {
+	var array []T
+	if err := json.Unmarshal(b, &array); err != nil {
+		return err
+	}
+	s.items = make(map[T]nothing, len(array))
+	for _, item := range array {
+		s.items[item] = sentinel
+	}
+	return nil
 }

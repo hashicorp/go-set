@@ -69,6 +69,8 @@ Provides helper methods
 - Copy
 - Slice
 - String
+- MarshalJSON
+- UnmarshalJSON
 
 # Install
 
@@ -141,4 +143,18 @@ e1 := &employee{name: "armon", id: 2}
 
 s := set.NewHashSet[*employee, string](10)
 s.Insert(e1)
+```
+
+# JSON
+
+Both `Set` and `HashSet` implement `MarshalJSON` and `UnmarshalJSON` so
+that they can be used with Go's built in `encoding/json` package. The
+sets are treated like JSON array objects, with no sort order. The elements
+of the set must be compatible with `json.Marshal()` for these methods
+to work.
+
+```go
+s := set.From([]int{1, 2, 3})
+b, _ := json.Marshal(s)
+// string(b) == `[1, 2, 3]`
 ```
