@@ -17,3 +17,7 @@
 # Go work files
 go.work
 go.work.sum
+
+# IDE files
+.idea
+.fleet
