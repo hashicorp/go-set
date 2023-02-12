@@ -127,6 +127,20 @@ func (s *HashSet[T, H]) RemoveSet(o *HashSet[T, H]) bool {
 	return modified
 }
 
+// RemoveFunc will remove each element from s that satisfies condition f.
+//
+// Return true if s was modified, false otherwise.
+func (s *HashSet[T, H]) RemoveFunc(f func(item T) bool) bool {
+	modified := false
+	for _, item := range s.items {
+		if applies := f(item); applies {
+			s.Remove(item)
+			modified = true
+		}
+	}
+	return modified
+}
+
 // Contains returns whether item is present in s.
 func (s *HashSet[T, H]) Contains(item T) bool {
 	_, exists := s.items[item.Hash()]

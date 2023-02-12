@@ -54,6 +54,7 @@ Implements the following set operations
 - Remove
 - RemoveAll
 - RemoveSet
+- RemoveFunc
 - Contains
 - ContainsAll
 - Subset

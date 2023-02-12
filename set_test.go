@@ -412,6 +412,44 @@ func TestSet_RemoveSet(t *testing.T) {
 	})
 }
 
+func TestSet_RemoveFunc(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		a := New[int](10)
+		modified := a.RemoveFunc(func(i int) bool {
+			return i%2 == 0
+		})
+		must.Empty(t, a)
+		must.False(t, modified)
+	})
+
+	t.Run("none match", func(t *testing.T) {
+		a := From[int]([]int{1, 3, 5, 7, 9})
+		modified := a.RemoveFunc(func(i int) bool {
+			return i%2 == 0
+		})
+		must.True(t, a.ContainsSlice([]int{1, 3, 5, 7, 9}))
+		must.False(t, modified)
+	})
+
+	t.Run("some match", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
+		modified := a.RemoveFunc(func(i int) bool {
+			return i%2 == 0
+		})
+		must.True(t, a.ContainsSlice([]int{1, 3, 5, 7, 9}))
+		must.True(t, modified)
+	})
+
+	t.Run("all match", func(t *testing.T) {
+		a := From[int]([]int{1, 3, 5, 7, 9})
+		modified := a.RemoveFunc(func(i int) bool {
+			return i%2 != 0
+		})
+		must.Empty(t, a)
+		must.True(t, modified)
+	})
+}
+
 func TestSet_Copy(t *testing.T) {
 	t.Run("copy empty", func(t *testing.T) {
 		a := New[int](0)
