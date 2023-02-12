@@ -204,6 +204,47 @@ func TestHashSet_RemoveSet(t *testing.T) {
 	})
 }
 
+func TestHashSet_RemoveFunc(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		s := NewHashSet[*company, string](10)
+		modified := s.RemoveFunc(func(c *company) bool {
+			return c.floor > 3
+		})
+		must.Empty(t, s)
+		must.False(t, modified)
+	})
+
+	t.Run("none match", func(t *testing.T) {
+		s := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		modified := s.RemoveFunc(func(c *company) bool {
+			return c.floor > 3
+		})
+		must.False(t, modified)
+		must.Size(t, 3, s)
+	})
+
+	t.Run("some match", func(t *testing.T) {
+		s := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5, c6})
+		modified := s.RemoveFunc(func(c *company) bool {
+			return c.floor > 3
+		})
+		must.True(t, modified)
+		must.Size(t, 3, s)
+		must.Contains[*company](t, c1, s)
+		must.Contains[*company](t, c2, s)
+		must.Contains[*company](t, c3, s)
+	})
+
+	t.Run("all match", func(t *testing.T) {
+		s := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5, c6})
+		modified := s.RemoveFunc(func(c *company) bool {
+			return c.floor >= 0
+		})
+		must.True(t, modified)
+		must.Empty(t, s)
+	})
+}
+
 func TestHashSet_Contains(t *testing.T) {
 	t.Run("empty contains", func(t *testing.T) {
 		a := NewHashSet[*company, string](0)
