@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // Package set provides a basic generic set implementation.
 //
 // https://en.wikipedia.org/wiki/Set_(mathematics)
