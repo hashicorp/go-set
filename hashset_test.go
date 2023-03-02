@@ -95,16 +95,16 @@ func TestHashSet_Insert(t *testing.T) {
 	})
 }
 
-func TestHashSet_InsertAll(t *testing.T) {
+func TestHashSet_InsertSlice(t *testing.T) {
 	t.Run("insert none", func(t *testing.T) {
 		empty := NewHashSet[*company, string](0)
-		must.False(t, empty.InsertAll(nil))
+		must.False(t, empty.InsertSlice(nil))
 		must.MapEmpty(t, empty.items)
 	})
 
 	t.Run("insert some", func(t *testing.T) {
 		s := NewHashSet[*company, string](0)
-		must.True(t, s.InsertAll([]*company{c1, c2, c3}))
+		must.True(t, s.InsertSlice([]*company{c1, c2, c3}))
 		must.MapContainsKeys(t, s.items, []string{
 			"street:1", "street:2", "street:3",
 		})
@@ -155,16 +155,16 @@ func TestHashSet_Remove(t *testing.T) {
 	})
 }
 
-func TestHashSet_RemoveAll(t *testing.T) {
+func TestHashSet_RemoveSlice(t *testing.T) {
 	t.Run("empty remove all", func(t *testing.T) {
 		s := NewHashSet[*company, string](0)
-		must.False(t, s.RemoveAll([]*company{c1, c2, c3}))
+		must.False(t, s.RemoveSlice([]*company{c1, c2, c3}))
 		must.MapEmpty(t, s.items)
 	})
 
 	t.Run("set remove nothing", func(t *testing.T) {
 		s := HashSetFrom[*company, string]([]*company{c1, c2, c3})
-		must.False(t, s.RemoveAll([]*company{c4, c5}))
+		must.False(t, s.RemoveSlice([]*company{c4, c5}))
 		must.MapContainsKeys(t, s.items, []string{
 			"street:1", "street:2", "street:3",
 		})
@@ -172,7 +172,7 @@ func TestHashSet_RemoveAll(t *testing.T) {
 
 	t.Run("set remove some", func(t *testing.T) {
 		s := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
-		must.True(t, s.RemoveAll([]*company{c4, c2}))
+		must.True(t, s.RemoveSlice([]*company{c4, c2}))
 		must.MapContainsKeys(t, s.items, []string{
 			"street:1", "street:3", "street:5",
 		})

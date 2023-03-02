@@ -49,14 +49,15 @@ to implement an efficient hash function using a hash code based on prime multipl
 Implements the following set operations
 
 - Insert
-- InsertAll
+- InsertSlice
 - InsertSet
 - Remove
-- RemoveAll
+- RemoveSlice
 - RemoveSet
 - RemoveFunc
 - Contains
 - ContainsAll
+- ContainsSlice
 - Subset
 - Size
 - Empty

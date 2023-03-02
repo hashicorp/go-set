@@ -99,23 +99,23 @@ func TestSet_Insert(t *testing.T) {
 	})
 }
 
-func TestSet_InsertAll(t *testing.T) {
+func TestSet_InsertSlice(t *testing.T) {
 	t.Run("insert none", func(t *testing.T) {
 		empty := New[int](0)
-		must.False(t, empty.InsertAll(nil))
+		must.False(t, empty.InsertSlice(nil))
 		must.MapEmpty(t, empty.items)
 	})
 
 	t.Run("insert some", func(t *testing.T) {
 		s := New[string](0)
-		must.True(t, s.InsertAll([]string{"apple", "banana", "cherry"}))
+		must.True(t, s.InsertSlice([]string{"apple", "banana", "cherry"}))
 		must.MapContainsKeys(t, s.items, []string{"apple", "banana", "cherry"})
 	})
 
 	t.Run("insert duplicates", func(t *testing.T) {
 		s := New[int](0)
-		must.True(t, s.InsertAll([]int{2, 4, 6, 8}))
-		must.True(t, s.InsertAll([]int{4, 5, 6}))
+		must.True(t, s.InsertSlice([]int{2, 4, 6, 8}))
+		must.True(t, s.InsertSlice([]int{4, 5, 6}))
 		must.MapContainsKeys(t, s.items, []int{2, 4, 5, 6, 8})
 	})
 }
@@ -369,22 +369,22 @@ func TestSet_Remove(t *testing.T) {
 	})
 }
 
-func TestSet_RemoveAll(t *testing.T) {
+func TestSet_RemoveSlice(t *testing.T) {
 	t.Run("empty remove all", func(t *testing.T) {
 		s := New[int](10)
-		must.False(t, s.RemoveAll([]int{1, 2, 3}))
+		must.False(t, s.RemoveSlice([]int{1, 2, 3}))
 		must.MapEmpty(t, s.items)
 	})
 
 	t.Run("set remove nothing", func(t *testing.T) {
 		s := From[int]([]int{1, 2, 3})
-		must.False(t, s.RemoveAll(nil))
+		must.False(t, s.RemoveSlice(nil))
 		must.MapContainsKeys(t, s.items, []int{1, 2, 3})
 	})
 
 	t.Run("set remove some", func(t *testing.T) {
 		s := From[int]([]int{1, 2, 3, 4, 5, 6})
-		must.True(t, s.RemoveAll([]int{5, 6, 7, 8, 9}))
+		must.True(t, s.RemoveSlice([]int{5, 6, 7, 8, 9}))
 		must.MapContainsKeys(t, s.items, []int{1, 2, 3, 4})
 	})
 }

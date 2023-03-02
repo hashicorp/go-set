@@ -38,7 +38,7 @@ func New[T comparable](size int) *Set[T] {
 // but not in the way you expect. For these types, use HashSet instead.
 func From[T comparable](items []T) *Set[T] {
 	s := New[T](len(items))
-	s.InsertAll(items)
+	s.InsertSlice(items)
 	return s
 }
 
@@ -75,7 +75,16 @@ func (s *Set[T]) Insert(item T) bool {
 // InsertAll will insert each item in items into s.
 //
 // Return true if s was modified (at least one item was not already in s), false otherwise.
+//
+// Deprecated: use InsertSlice instead.
 func (s *Set[T]) InsertAll(items []T) bool {
+	return s.InsertSlice(items)
+}
+
+// InsertSlice will insert each item in items into s.
+//
+// Return true if s was modified (at least one item was not already in s), false otherwise.
+func (s *Set[T]) InsertSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Insert(item) {
@@ -112,7 +121,16 @@ func (s *Set[T]) Remove(item T) bool {
 // RemoveAll will remove each item in items from s.
 //
 // Return true if s was modified (any item was present), false otherwise.
+//
+// Deprecated: use RemoveSlice instead.
 func (s *Set[T]) RemoveAll(items []T) bool {
+	return s.RemoveSlice(items)
+}
+
+// RemoveSlice will remove each item in items from s.
+//
+// Return true if s was modified (any item was present), false otherwise.
+func (s *Set[T]) RemoveSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Remove(item) {
