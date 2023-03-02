@@ -602,3 +602,37 @@ func TestHashSet_HashCode(t *testing.T) {
 	must.True(t, a.Contains(s2))
 	must.False(t, a.Contains(s3))
 }
+
+func TestHashString(t *testing.T) {
+	cases := []struct {
+		input string
+		exp   int
+	}{
+		{input: "", exp: 5381},
+		{input: "a", exp: 177604},
+		{input: "b", exp: 177607},
+		{input: "ab", exp: 5860902},
+	}
+
+	for _, tc := range cases {
+		result := HashString[int](tc.input)
+		must.Eq(t, tc.exp, result)
+	}
+}
+
+func TestHashParts(t *testing.T) {
+	cases := []struct {
+		input []int
+		exp   int
+	}{
+		{input: nil, exp: 5381},
+		{input: []int{97}, exp: 177604},
+		{input: []int{98}, exp: 177607},
+		{input: []int{97, 98}, exp: 5860902},
+	}
+
+	for _, tc := range cases {
+		result := HashParts(tc.input...)
+		must.Eq(t, tc.exp, result)
+	}
+}

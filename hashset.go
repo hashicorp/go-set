@@ -26,6 +26,41 @@ type HashSet[T HashFunc[H], H Hash] struct {
 	items map[H]T
 }
 
+// Hash64 represents an acceptable output type of included hashing helper functions.
+type Hash64 interface {
+	~int | ~uint | ~int64 | ~uint64
+}
+
+// HashString computes a hash of s.
+//
+// Implementation is based on djb2a.
+//
+// http://www.cse.yorku.ca/~oz/hash.html
+//
+// Not a cryptographic hash.
+func HashString[H Hash64](s string) H {
+	var hash H = 5381
+	for _, c := range s {
+		hash = hash*33 ^ H(c)
+	}
+	return hash
+}
+
+// HashParts combines parts into a hash.
+//
+// Implementation is based on djb2a.
+//
+// http://www.cse.yorku.ca/~oz/hash.html
+//
+// Not a cryptographic hash.
+func HashParts[H Hash64](parts ...H) H {
+	var hash H = 5381
+	for _, part := range parts {
+		hash = hash*33 ^ part
+	}
+	return hash
+}
+
 // NewHashSet creates a HashSet with underlying capacity of size.
 //
 // A HashSet will automatically grow or shrink its capacity as items are added
