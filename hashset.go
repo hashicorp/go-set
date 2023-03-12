@@ -261,6 +261,8 @@ func (s *HashSet[T, H]) Copy() *HashSet[T, H] {
 }
 
 // Slice creates a copy of s as a slice.
+//
+// The result is not ordered.
 func (s *HashSet[T, H]) Slice() []T {
 	result := make([]T, 0, s.Size())
 	for _, item := range s.items {

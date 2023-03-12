@@ -195,7 +195,7 @@ func (s *Set[T]) ContainsAll(items []T) bool {
 // If the slice is known to be set-like (no duplicates), EqualSlice provides
 // a more efficient implementation.
 func (s *Set[T]) ContainsSlice(items []T) bool {
-	return s.Equal(From[T](items))
+	return s.Equal(From(items))
 }
 
 // Subset returns whether o is a subset of s.

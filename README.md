@@ -4,7 +4,26 @@
 [![Run CI Tests](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml/badge.svg)](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml)
 [![GitHub](https://img.shields.io/github/license/hashicorp/go-set)](LICENSE)
 
-Provides the `set` package that implements a generic mathematical [set](https://en.wikipedia.org/wiki/Set) for Go. The package only provides a basic implementation that is optimized for correctness and convenience. This package is not thread-safe.
+The `go-set` repository provides a `set` package containing a few
+generic [Set](https://en.wikipedia.org/wiki/Set) implementations for Go.
+
+Each implementation is optimal for a particular use case.
+
+`Set` is ideal for `comparable` types.
+  - backed by `map` builtin
+  - commonly used with `string`, `int`, simple `struct` types, etc.
+
+`HashSet` is useful for types that implement a `Hash()` function.
+  - backed by `map` builtin
+  - commonly used with complex structs
+
+`TreeSet` is useful for comparable data (via `Compare[T]`)
+  - backed by Red-Black Binary Search Tree
+  - commonly used with complex structs with extrinsic order
+  - efficient iteration in sort order
+  - additional methods `Min` / `Max` / `TopK` / `BottomK`
+
+This package is not thread-safe.
 
 # Documentation
 
@@ -36,13 +55,32 @@ The same result, but in one line using package `go-set`.
 list := set.From[string](items).Slice()
 ```
 
-# Hash Function
+# Set
 
-In addition to `Set`, there is `HashSet` for types that implement a `Hash()` function.
-The custom type must satisfy `HashFunc[H Hash]` - essentially any `Hash()`
-function that returns a `string` or `integer`. This enables types to use string-y
-hash functions like `md5`, `sha1`, or even `GoString()`, but also enables types
-to implement an efficient hash function using a hash code based on prime multiples.
+The `go-set` package includes `Set` for types that satisfy the `comparable` constraint.
+Note that complex structs (i.e. is a pointer or contains pointer fields) will not be
+"comparable" in the sense of deep equality, but rather in the sense of pointer addresses.
+The `Set` type should be used with builtin types like `string`, `int`, or simple struct
+types with no pointers.
+
+# HashSet
+
+The `go-set` package includes `HashSet` for types that implement a `Hash()` function.
+The custom type must satisfy `HashFunc[H Hash]` - essentially any `Hash()` function
+that returns a `string` or `integer`. This enables types to use string-y hash
+functions like `md5`, `sha1`, or even `GoString()`, but also enables types to
+implement an efficient hash function using a hash code based on prime multiples.
+
+# TreeSet
+
+The `go-set` package includes `TreeSet` for creating sorted sets. A `TreeSet` may
+be used with any type `T` as the comparison between elements is provided by implementing
+`Compare[T]`. The `Cmp[builtin]` helper provides a convenient implementation of
+`Compare` for `builtin` types like `string` or `int`. A `TreeSet` is backed by
+an underlying balanced binary search tree, making operations like in-order traversal
+efficient, in addition to enabling functions like `Min()`, `Max()`, `TopK()`, and
+`BottomK()`.
+
 
 ### Methods
 
@@ -71,6 +109,10 @@ Provides helper methods
 - Copy
 - Slice
 - String
+- Min (`TreeSet` only)
+- Max (`TreeSet` only)
+- TopK (`TreeSet` only)
+- BottomK (`TreeSet` only)
 
 # Install
 
@@ -90,20 +132,20 @@ Below are simple example usages of `Set`
 s := set.New[int](10)
 s.Insert(1)
 s.InsertAll([]int{2, 3, 4})
-s.Size() # 3
+s.Size()
 ```
 
 ```go
 s := set.From[string]([]string{"one", "two", "three"})
-s.Contains("three") # true
-s.Remove("one") # true
+s.Contains("three")
+s.Remove("one")
 ```
 
 
 ```go
 a := set.From[int]([]int{2, 4, 6, 8})
 b := set.From[int]([]int{4, 5, 6})
-a.Intersect(b) # {4, 6}
+a.Intersect(b)
 ```
 
 # HashSet Examples
@@ -144,3 +186,33 @@ e1 := &employee{name: "armon", id: 2}
 s := set.NewHashSet[*employee, string](10)
 s.Insert(e1)
 ```
+
+# TreeSet Examples
+
+Below are simple example usages of `TreeSet`
+
+(using `Cmp` as `Compare`)
+
+```go
+ts := NewTreeSet[int, Compare[int]](Cmp[int])
+ts.Insert(5)
+```
+
+(using custom `Compare`)
+
+```go
+type waypoint struct {
+    distance int
+    name     string
+}
+
+cmp := func(w1, w2 *waypoint) int {
+    return w1.distance - w2.distance
+}
+
+ts := NewTreeSet[*waypoint, Compare[*waypoint]](cmp)
+ts.Insert(&waypoint{distance: 42, name: "tango"})
+ts.Insert(&waypoint{distance: 13, name: "alpha"})
+ts.Insert(&waypoint{distance: 71, name: "xray"})
+```
+
