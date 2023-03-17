@@ -48,7 +48,7 @@ func NewHashSet[T HashFunc[H], H Hash](size int) *HashSet[T, H] {
 // that include non-comparable fields to provide their own hash algorithm.
 func HashSetFrom[T HashFunc[H], H Hash](items []T) *HashSet[T, H] {
 	s := NewHashSet[T, H](len(items))
-	s.InsertAll(items)
+	s.InsertSlice(items)
 	return s
 }
 
@@ -67,7 +67,16 @@ func (s *HashSet[T, H]) Insert(item T) bool {
 // InsertAll will insert each item in items into s.
 //
 // Return true if s was modified (at least one item was not already in s), false otherwise.
+//
+// Deprecated: use InsertSlice instead.
 func (s *HashSet[T, H]) InsertAll(items []T) bool {
+	return s.InsertSlice(items)
+}
+
+// InsertSlice will insert each item in items into s.
+//
+// Return true if s was modified (at least one item was not already in s), false otherwise.
+func (s *HashSet[T, H]) InsertSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Insert(item) {
@@ -106,7 +115,16 @@ func (s *HashSet[T, H]) Remove(item T) bool {
 // RemoveAll will remove each item in items from s.
 //
 // Return true if s was modified (any item was present), false otherwise.
+//
+// Deprecated: use RemoveSlice instead.
 func (s *HashSet[T, H]) RemoveAll(items []T) bool {
+	return s.RemoveSlice(items)
+}
+
+// RemoveSlice will remove each item in items from s.
+//
+// Return true if s was modified (any item was present), false otherwise.
+func (s *HashSet[T, H]) RemoveSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Remove(item) {
