@@ -507,6 +507,46 @@ func TestTreeSet_BottomK(t *testing.T) {
 	})
 }
 
+func TestTreeSet_Before(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		result := ts.Before(1)
+		must.Eq(t, nil, result)
+	})
+
+	t.Run("returns 3", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{3, 9, 1, 7, 5}, Cmp[int])
+		result := ts.Before(5)
+		must.Eq(t, 3, *result)
+	})
+
+	t.Run("returns nil", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{3, 9, 1, 7, 5}, Cmp[int])
+		result := ts.Before(1)
+		must.Eq(t, nil, result)
+	})
+}
+
+func TestTreeSet_After(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		result := ts.After(1)
+		must.Eq(t, nil, result)
+	})
+
+	t.Run("returns 7", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{3, 9, 1, 7, 5}, Cmp[int])
+		result := ts.After(5)
+		must.Eq(t, 7, *result)
+	})
+
+	t.Run("returns nil", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{3, 9, 1, 7, 5}, Cmp[int])
+		result := ts.After(9)
+		must.Eq(t, nil, result)
+	})
+}
+
 func TestTreeSet_Slice(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		ts := NewTreeSet[int, Compare[int]](Cmp[int])

@@ -156,6 +156,30 @@ func (s *TreeSet[T, C]) BottomK(n int) []T {
 	return result
 }
 
+// Before returns element which is before item or nil.
+func (s *TreeSet[T, C]) Before(item T) *T {
+	result := make([]T, 0, s.size)
+	s.fillLeft(s.root, &result)
+	for i := len(result) - 1; i >= 0; i-- {
+		if s.comparison(result[i], item) < 0 {
+			return &result[i]
+		}
+	}
+	return nil
+}
+
+// After returns element which is after item or nil.
+func (s *TreeSet[T, C]) After(item T) *T {
+	result := make([]T, 0, s.size)
+	s.fillLeft(s.root, &result)
+	for i := 0; i <= len(result)-1; i++ {
+		if s.comparison(result[i], item) > 0 {
+			return &result[i]
+		}
+	}
+	return nil
+}
+
 // Contains returns whether item is present in s.
 func (s *TreeSet[T, C]) Contains(item T) bool {
 	return s.locate(s.root, item) != nil
