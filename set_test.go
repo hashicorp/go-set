@@ -4,6 +4,7 @@
 package set
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -662,4 +663,20 @@ func TestSet_EqualSlice(t *testing.T) {
 		b := []int{1, 2, 2, 3, 3, 4, 5}
 		must.False(t, a.EqualSlice(b))
 	})
+}
+
+func TestSetSerialization(t *testing.T) {
+	set := NewHashSet[*company, string](10)
+	set.InsertSlice([]*company{c1, c2, c3})
+	bs, err := json.Marshal(set)
+	must.NoError(t, err)
+	must.StrContains(t, string(bs), `"street":1`)
+	must.StrContains(t, string(bs), `"street":2`)
+	must.StrContains(t, string(bs), `"street":3`)
+
+	dstSet := NewHashSet[*company, string](10)
+	err = json.Unmarshal(bs, dstSet)
+	must.NoError(t, err)
+	must.MapEqual(t, dstSet.items, set.items)
+
 }
