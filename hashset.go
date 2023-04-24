@@ -322,3 +322,13 @@ func (s *HashSet[T, H]) EqualSlice(items []T) bool {
 	}
 	return s.ContainsAll(items)
 }
+
+// MarshalJSON implements the json.Marshaler interface.
+func (s *HashSet[T, H]) MarshalJSON() ([]byte, error) {
+	return marshalJson[T](s)
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (s *HashSet[T, H]) UnmarshalJSON(data []byte) error {
+	return unmarshalJson[T](s, data)
+}

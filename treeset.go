@@ -787,3 +787,13 @@ func (s *TreeSet[T, C]) iterate() <-chan *node[T] {
 	go s.infix(v, s.root)
 	return c
 }
+
+// MarshalJSON implements the json.Marshaler interface.
+func (s *TreeSet[T, C]) MarshalJSON() ([]byte, error) {
+	return marshalJson[T](s)
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (s *TreeSet[T, C]) UnmarshalJSON(data []byte) error {
+	return unmarshalJson[T](s, data)
+}

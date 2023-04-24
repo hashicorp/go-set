@@ -5,6 +5,8 @@ package set
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/shoenig/test/must"
@@ -27,6 +29,21 @@ func (c *company) Hash() string {
 
 func (c *company) String() string {
 	return fmt.Sprintf("<%s %d>", c.address, c.floor)
+}
+func (c *company) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("{\"%s\":%d}", c.address, c.floor)), nil
+}
+
+func (c *company) UnmarshalJSON(data []byte) error {
+	s := strings.TrimLeft(string(data), "{")
+	s = strings.TrimRight(s, "}")
+
+	splitSlice := strings.Split(s, ":")
+	address := strings.TrimLeft(splitSlice[0], "\"")
+	address = strings.TrimRight(address, "\"")
+	c.address = address
+	c.floor, _ = strconv.Atoi(splitSlice[1])
+	return nil
 }
 
 var (
