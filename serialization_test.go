@@ -2,8 +2,9 @@ package set
 
 import (
 	"encoding/json"
-	"github.com/shoenig/test/must"
 	"testing"
+
+	"github.com/shoenig/test/must"
 )
 
 func TestSerialization(t *testing.T) {
@@ -21,6 +22,7 @@ func TestSerialization(t *testing.T) {
 		must.NoError(t, err)
 		must.MapEq(t, dstSet.items, set.items)
 	})
+
 	t.Run("HashSet", func(t *testing.T) {
 		set := NewHashSet[*company, string](10)
 		set.InsertSlice([]*company{c1, c2, c3})
@@ -35,6 +37,7 @@ func TestSerialization(t *testing.T) {
 		must.NoError(t, err)
 		must.MapEqual(t, dstSet.items, set.items)
 	})
+
 	t.Run("TreeSet", func(t *testing.T) {
 		set := NewTreeSet[int, Compare[int]](Cmp[int])
 		set.InsertSlice([]int{10, 3, 13})
