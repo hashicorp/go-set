@@ -678,5 +678,4 @@ func TestSetSerialization(t *testing.T) {
 	err = json.Unmarshal(bs, dstSet)
 	must.NoError(t, err)
 	must.MapEqual(t, dstSet.items, set.items)
-
 }
