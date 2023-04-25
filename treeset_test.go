@@ -506,6 +506,114 @@ func TestTreeSet_BottomK(t *testing.T) {
 	})
 }
 
+func TestTreeSet_Below(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{5, 6, 7, 8, 9}, Cmp[int])
+		b := ts.Below(5)
+		must.Empty(t, b)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3}, Cmp[int])
+		b := ts.Below(5)
+		result := b.Slice()
+		must.Eq(t, []int{1, 2, 3, 4}, result)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 2; i < 100; i++ {
+			below := ts.Below(i)
+			must.Size(t, i-1, below)
+			must.Min(t, 1, below)
+			must.Max(t, i-1, below)
+		}
+	})
+}
+
+func TestTreeSet_BelowEqual(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{5, 6, 7, 8, 9}, Cmp[int])
+		b := ts.BelowEqual(4)
+		must.Empty(t, b)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3}, Cmp[int])
+		b := ts.BelowEqual(5)
+		result := b.Slice()
+		must.Eq(t, []int{1, 2, 3, 4, 5}, result)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			below := ts.BelowEqual(i)
+			must.Size(t, i, below)
+			must.Min(t, 1, below)
+			must.Max(t, i, below)
+		}
+	})
+}
+
+func TestTreeSet_Above(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{5, 6, 7, 8, 9}, Cmp[int])
+		b := ts.Above(9)
+		must.Empty(t, b)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3}, Cmp[int])
+		b := ts.Above(5)
+		result := b.Slice()
+		must.Eq(t, []int{7, 8, 9}, result)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			above := ts.Above(i)
+			must.Size(t, 100-i, above)
+			must.Min(t, i+1, above)
+			must.Max(t, 100, above)
+		}
+	})
+}
+
+func TestTreeSet_AboveEqual(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{5, 6, 7, 8, 9}, Cmp[int])
+		b := ts.AboveEqual(10)
+		must.Empty(t, b)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3}, Cmp[int])
+		b := ts.AboveEqual(5)
+		result := b.Slice()
+		must.Eq(t, []int{5, 7, 8, 9}, result)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			above := ts.AboveEqual(i)
+			must.Size(t, 100-i+1, above)
+			must.Min(t, i, above)
+			must.Max(t, 100, above)
+		}
+	})
+}
+
 func TestTreeSet_Slice(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		ts := NewTreeSet[int, Compare[int]](Cmp[int])
