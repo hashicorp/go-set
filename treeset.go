@@ -156,6 +156,42 @@ func (s *TreeSet[T, C]) BottomK(n int) []T {
 	return result
 }
 
+// Below returns a TreeSet containing the elements of s that are < item.
+func (s *TreeSet[T, C]) Below(item T) *TreeSet[T, C] {
+	result := NewTreeSet[T](s.comparison)
+	s.filterLeft(s.root, func(element T) bool {
+		return s.comparison(element, item) < 0
+	}, result)
+	return result
+}
+
+// BelowEqual returns a TreeSet containing the elements of s that are ≤ item.
+func (s *TreeSet[T, C]) BelowEqual(item T) *TreeSet[T, C] {
+	result := NewTreeSet[T](s.comparison)
+	s.filterLeft(s.root, func(element T) bool {
+		return s.comparison(element, item) <= 0
+	}, result)
+	return result
+}
+
+// After returns a TreeSet containing the elements of s that are > item.
+func (s *TreeSet[T, C]) Above(item T) *TreeSet[T, C] {
+	result := NewTreeSet[T](s.comparison)
+	s.filterRight(s.root, func(element T) bool {
+		return s.comparison(element, item) > 0
+	}, result)
+	return result
+}
+
+// AfterEqual returns a TreeSet containing the elements of s that are ≥ item.
+func (s *TreeSet[T, C]) AboveEqual(item T) *TreeSet[T, C] {
+	result := NewTreeSet[T](s.comparison)
+	s.filterRight(s.root, func(element T) bool {
+		return s.comparison(element, item) >= 0
+	}, result)
+	return result
+}
+
 // Contains returns whether item is present in s.
 func (s *TreeSet[T, C]) Contains(item T) bool {
 	return s.locate(s.root, item) != nil
@@ -796,4 +832,30 @@ func (s *TreeSet[T, C]) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (s *TreeSet[T, C]) UnmarshalJSON(data []byte) error {
 	return unmarshalJson[T](s, data)
+}
+
+func (s *TreeSet[T, C]) filterLeft(n *node[T], accept func(element T) bool, result *TreeSet[T, C]) {
+	if n == nil {
+		return
+	}
+
+	s.filterLeft(n.left, accept, result)
+
+	if accept(n.element) {
+		result.Insert(n.element)
+		s.filterLeft(n.right, accept, result)
+	}
+}
+
+func (s *TreeSet[T, C]) filterRight(n *node[T], accept func(element T) bool, result *TreeSet[T, C]) {
+	if n == nil {
+		return
+	}
+
+	s.filterRight(n.right, accept, result)
+
+	if accept(n.element) {
+		result.Insert(n.element)
+		s.filterRight(n.left, accept, result)
+	}
 }
