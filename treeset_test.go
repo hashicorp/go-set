@@ -154,26 +154,25 @@ func TestTreeSet_Remove_int(t *testing.T) {
 	ts := NewTreeSet[int, Compare[int]](cmp)
 
 	numbers := ints(size)
-	random := shuffle(numbers)
+	rnd := shuffle(numbers)
 
 	// insert in random order
-	for _, i := range random {
+	for _, i := range rnd {
 		ts.Insert(i)
 	}
 
 	invariants(t, ts, cmp)
 
 	// reshuffle
-	random = shuffle(random)
+	rnd = shuffle(rnd)
 
 	// remove every element in random order
-	for _, i := range random {
+	for _, i := range rnd {
 		removed := ts.Remove(i)
 		t.Log("dump: remove", i)
 		t.Log(ts.dump())
 		must.True(t, removed)
 		invariants(t, ts, cmp)
-
 	}
 
 	// all gone

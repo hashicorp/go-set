@@ -52,5 +52,4 @@ func TestSerialization(t *testing.T) {
 		must.NoError(t, err)
 		must.Eq(t, set.Slice(), dstSet.Slice())
 	})
-
 }
