@@ -143,7 +143,7 @@ func TestSet_InsertSet(t *testing.T) {
 func TestSet_Contains(t *testing.T) {
 	t.Run("contains string item", func(t *testing.T) {
 		s := New[string](10)
-		must.True(t, s.InsertAll([]string{"apple", "banana", "chery"}))
+		must.True(t, s.InsertSlice([]string{"apple", "banana", "chery"}))
 		must.True(t, s.Contains("apple"))
 		must.True(t, s.Contains("banana"))
 		must.True(t, s.Contains("chery"))
@@ -165,13 +165,13 @@ func TestSet_Contains(t *testing.T) {
 func TestSet_ContainsAll(t *testing.T) {
 	t.Run("contains subset", func(t *testing.T) {
 		s := New[int](10)
-		must.True(t, s.InsertAll([]int{1, 2, 3, 4, 5}))
+		must.True(t, s.InsertSlice([]int{1, 2, 3, 4, 5}))
 		must.True(t, s.ContainsAll([]int{1, 3, 5}))
 	})
 
 	t.Run("contains missing", func(t *testing.T) {
 		s := New[int](10)
-		must.True(t, s.InsertAll([]int{1, 2, 3, 4, 5}))
+		must.True(t, s.InsertSlice([]int{1, 2, 3, 4, 5}))
 		must.False(t, s.ContainsAll([]int{1, 3, 5, 7}))
 	})
 }
@@ -263,14 +263,14 @@ func TestSet_Union(t *testing.T) {
 	t.Run("empty ∪ set", func(t *testing.T) {
 		a := New[int](10)
 		b := New[int](10)
-		b.InsertAll([]int{1, 2, 3, 4, 5})
+		b.InsertSlice([]int{1, 2, 3, 4, 5})
 		union := a.Union(b)
 		must.MapContainsKeys(t, union.items, []int{1, 2, 3, 4, 5})
 	})
 
 	t.Run("set ∪ empty", func(t *testing.T) {
 		a := New[int](10)
-		a.InsertAll([]int{1, 2, 3, 4, 5})
+		a.InsertSlice([]int{1, 2, 3, 4, 5})
 		b := New[int](10)
 		union := a.Union(b)
 		must.MapContainsKeys(t, union.items, []int{1, 2, 3, 4, 5})
@@ -278,9 +278,9 @@ func TestSet_Union(t *testing.T) {
 
 	t.Run("set ∪ other", func(t *testing.T) {
 		a := New[int](10)
-		must.True(t, a.InsertAll([]int{2, 4, 6, 8}))
+		must.True(t, a.InsertSlice([]int{2, 4, 6, 8}))
 		b := New[int](10)
-		must.True(t, b.InsertAll([]int{4, 5, 6}))
+		must.True(t, b.InsertSlice([]int{4, 5, 6}))
 		union := a.Union(b)
 		must.MapContainsKeys(t, union.items, []int{2, 4, 5, 6, 8})
 	})
@@ -468,7 +468,7 @@ func TestSet_Copy(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4})
 		b := a.Copy()
 		must.MapContainsKeys(t, b.items, []int{1, 2, 3, 4})
-		must.True(t, b.RemoveAll([]int{1, 3}))
+		must.True(t, b.RemoveSlice([]int{1, 3}))
 		must.MapContainsKeys(t, b.items, []int{2, 4})
 		must.MapContainsKeys(t, a.items, []int{1, 2, 3, 4})
 	})
@@ -494,13 +494,13 @@ func TestSet_Slice(t *testing.T) {
 func TestSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := New[string](10)
-		l := a.List()
+		l := a.Slice()
 		must.SliceEmpty(t, l)
 	})
 
 	t.Run("list set", func(t *testing.T) {
 		a := From([]string{"apple", "banana", "cherry"})
-		l := a.List()
+		l := a.Slice()
 		must.Len(t, 3, l)
 		must.SliceContains(t, l, "apple")
 		must.SliceContains(t, l, "banana")

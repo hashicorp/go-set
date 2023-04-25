@@ -501,7 +501,7 @@ func TestHashSet_Copy(t *testing.T) {
 		must.MapContainsKeys(t, b.items, []string{
 			"street:1", "street:2", "street:3", "street:4",
 		})
-		must.True(t, b.RemoveAll([]*company{c1, c3}))
+		must.True(t, b.RemoveSlice([]*company{c1, c3}))
 		must.MapContainsKeys(t, b.items, []string{"street:2", "street:4"})
 		must.MapContainsKeys(t, a.items, []string{
 			"street:1", "street:2", "street:3", "street:4",
@@ -528,13 +528,13 @@ func TestHashSet_Slice(t *testing.T) {
 func TestHashSet_List(t *testing.T) {
 	t.Run("list empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
-		l := a.List()
+		l := a.Slice()
 		must.SliceEmpty(t, l)
 	})
 
 	t.Run("list set", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2})
-		l := a.List()
+		l := a.Slice()
 		must.Len(t, 2, l)
 		must.SliceContainsEqual(t, l, c1)
 		must.SliceContainsEqual(t, l, c2)
