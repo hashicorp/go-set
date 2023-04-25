@@ -156,6 +156,46 @@ func (s *TreeSet[T, C]) BottomK(n int) []T {
 	return result
 }
 
+// FirstBelow returns the first element strictly below item.
+//
+// A zero value and false are returned if no such element exists.
+func (s *TreeSet[T, C]) FirstBelow(item T) (T, bool) {
+	var candidate *node[T] = nil
+	var n = s.root
+	for n != nil {
+		c := s.comparison(item, n.element)
+		switch {
+		case c > 0:
+			candidate = n
+			n = n.right
+		case c <= 0:
+			n = n.left
+		}
+	}
+	return candidate.get()
+}
+
+// FirstBelowEqual returns the first element below item (or item itself if present).
+//
+// A zero value and false are returned if no such element exists.
+func (s *TreeSet[T, C]) FirstBelowEqual(item T) (T, bool) {
+	var candidate *node[T] = nil
+	var n = s.root
+	for n != nil {
+		c := s.comparison(item, n.element)
+		switch {
+		case c == 0:
+			return n.get()
+		case c > 0:
+			candidate = n
+			n = n.right
+		case c < 0:
+			n = n.left
+		}
+	}
+	return candidate.get()
+}
+
 // Below returns a TreeSet containing the elements of s that are < item.
 func (s *TreeSet[T, C]) Below(item T) *TreeSet[T, C] {
 	result := NewTreeSet[T](s.comparison)
@@ -172,6 +212,46 @@ func (s *TreeSet[T, C]) BelowEqual(item T) *TreeSet[T, C] {
 		return s.comparison(element, item) <= 0
 	}, result)
 	return result
+}
+
+// FirstAbove returns the first element strictly above item.
+//
+// A zero value and false are returned if no such element exists.
+func (s *TreeSet[T, C]) FirstAbove(item T) (T, bool) {
+	var candidate *node[T] = nil
+	var n = s.root
+	for n != nil {
+		c := s.comparison(item, n.element)
+		switch {
+		case c < 0:
+			candidate = n
+			n = n.left
+		case c >= 0:
+			n = n.right
+		}
+	}
+	return candidate.get()
+}
+
+// FirstAboveEqual returns the first element above item (or item itself if present).
+//
+// A zero value and false are returned if no such element exists.
+func (s *TreeSet[T, C]) FirstAboveEqual(item T) (T, bool) {
+	var candidate *node[T]
+	var n = s.root
+	for n != nil {
+		c := s.comparison(item, n.element)
+		switch {
+		case c == 0:
+			return n.get()
+		case c < 0:
+			candidate = n
+			n = n.left
+		case c > 0:
+			n = n.right
+		}
+	}
+	return candidate.get()
 }
 
 // After returns a TreeSet containing the elements of s that are > item.
@@ -399,6 +479,14 @@ func (n *node[T]) black() bool {
 
 func (n *node[T]) red() bool {
 	return n != nil && n.color == red
+}
+
+func (n *node[T]) get() (T, bool) {
+	if n == nil {
+		var zero T
+		return zero, false
+	}
+	return n.element, true
 }
 
 func (s *TreeSet[T, C]) locate(start *node[T], target T) *node[T] {
