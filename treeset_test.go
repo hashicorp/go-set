@@ -506,6 +506,58 @@ func TestTreeSet_BottomK(t *testing.T) {
 	})
 }
 
+func TestTreeSet_FirstBelow(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		_, exists := ts.FirstBelow(5)
+		must.False(t, exists)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{1, 3, 4, 5, 7, 8}, Cmp[int])
+		v, exists := ts.FirstBelow(5)
+		must.True(t, exists)
+		must.Eq(t, 4, v)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 2; i < 100; i++ {
+			v, exists := ts.FirstBelow(i)
+			must.True(t, exists)
+			must.Eq(t, i-1, v)
+		}
+	})
+}
+
+func TestTreeSet_FirstBelowEqual(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		_, exists := ts.FirstBelowEqual(5)
+		must.False(t, exists)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{1, 3, 4, 5, 7, 8}, Cmp[int])
+		v, exists := ts.FirstBelowEqual(5)
+		must.True(t, exists)
+		must.Eq(t, 5, v)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			v, exists := ts.FirstBelowEqual(i)
+			must.True(t, exists)
+			must.Eq(t, i, v)
+		}
+	})
+}
+
 func TestTreeSet_Below(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		ts := TreeSetFrom[int, Compare[int]]([]int{5, 6, 7, 8, 9}, Cmp[int])
@@ -556,6 +608,58 @@ func TestTreeSet_BelowEqual(t *testing.T) {
 			must.Size(t, i, below)
 			must.Min(t, 1, below)
 			must.Max(t, i, below)
+		}
+	})
+}
+
+func TestTreeSet_FirstAbove(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{2, 1, 3, 5, 4}, Cmp[int])
+		_, exists := ts.FirstAbove(5)
+		must.False(t, exists)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{2, 1, 4, 6, 5, 7, 8}, Cmp[int])
+		v, exists := ts.FirstAbove(5)
+		must.True(t, exists)
+		must.Eq(t, 6, v)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			v, exists := ts.FirstAbove(i)
+			must.True(t, exists)
+			must.Eq(t, i+1, v)
+		}
+	})
+}
+
+func TestTreeSet_FirstAboveEqual(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{2, 1, 3, 4}, Cmp[int])
+		_, exists := ts.FirstAboveEqual(5)
+		must.False(t, exists)
+	})
+
+	t.Run("basic", func(t *testing.T) {
+		ts := TreeSetFrom[int, Compare[int]]([]int{2, 1, 4, 6, 5, 7, 8}, Cmp[int])
+		v, exists := ts.FirstAboveEqual(5)
+		must.True(t, exists)
+		must.Eq(t, 5, v)
+	})
+
+	t.Run("many", func(t *testing.T) {
+		ts := NewTreeSet[int, Compare[int]](Cmp[int])
+		nums := shuffle(ints(100))
+		ts.InsertSlice(nums)
+		for i := 1; i < 100; i++ {
+			v, exists := ts.FirstAboveEqual(i)
+			must.True(t, exists)
+			must.Eq(t, i, v)
 		}
 	})
 }
