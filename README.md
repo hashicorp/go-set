@@ -109,10 +109,20 @@ Provides helper methods
 - Copy
 - Slice
 - String
-- Min (`TreeSet` only)
-- Max (`TreeSet` only)
-- TopK (`TreeSet` only)
-- BottomK (`TreeSet` only)
+
+TreeSet helper methods
+- Min
+- Max
+- TopK
+- BottomK
+- FirstAbove
+- FirstAboveEqual
+- Above
+- AboveEqual
+- FirstBelow
+- FirstBelowEqual
+- Below
+- BelowEqual
 
 # Install
 
