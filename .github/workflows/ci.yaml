@@ -1,5 +1,15 @@
 name: Run CI Tests
-on: [push]
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+      - .gitignore
+  pull_request:
+    paths-ignore:
+      - README.md
+      - .gitignore
 jobs:
   run-lint:
     timeout-minutes: 10
