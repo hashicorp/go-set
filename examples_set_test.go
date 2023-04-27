@@ -20,6 +20,18 @@ func ExampleSet_Insert() {
 
 // InsertSlice
 
+func ExampleSet_InsertSlice() {
+    
+    s := set.New()
+    s.InsertSlice([]int{1, 2, 3})
+	
+    fmt.Println(s)
+    
+    // Output:
+   // [1 2 3]
+	
+}
+
 // InsertSet
 
 // Remove
