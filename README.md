@@ -141,7 +141,7 @@ Below are simple example usages of `Set`
 ```go
 s := set.New[int](10)
 s.Insert(1)
-s.InsertAll([]int{2, 3, 4})
+s.InsertSlice([]int{2, 3, 4})
 s.Size()
 ```
 
