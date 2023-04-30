@@ -333,10 +333,10 @@ func (s *Set[T]) EqualSlice(items []T) bool {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (s *Set[T]) MarshalJSON() ([]byte, error) {
-	return marshalJson[T](s)
+	return marshalJSON[T](s)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (s *Set[T]) UnmarshalJSON(data []byte) error {
-	return unmarshalJson[T](s, data)
+	return unmarshalJSON[T](s, data)
 }

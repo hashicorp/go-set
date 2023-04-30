@@ -914,12 +914,12 @@ func (s *TreeSet[T, C]) iterate() <-chan *node[T] {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (s *TreeSet[T, C]) MarshalJSON() ([]byte, error) {
-	return marshalJson[T](s)
+	return marshalJSON[T](s)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (s *TreeSet[T, C]) UnmarshalJSON(data []byte) error {
-	return unmarshalJson[T](s, data)
+	return unmarshalJSON[T](s, data)
 }
 
 func (s *TreeSet[T, C]) filterLeft(n *node[T], accept func(element T) bool, result *TreeSet[T, C]) {
