@@ -4,6 +4,7 @@
 package set
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -304,8 +305,9 @@ func (s *TreeSet[T, C]) Empty() bool {
 // Slice returns the elements of s as a slice, in order.
 func (s *TreeSet[T, C]) Slice() []T {
 	result := make([]T, 0, s.Size())
-	s.infix(func(n *node[T]) {
+	s.infix(func(n *node[T]) bool {
 		result = append(result, n.element)
+		return true
 	}, s.root)
 	return result
 }
@@ -322,10 +324,13 @@ func (s *TreeSet[T, C]) Subset(o *TreeSet[T, C]) bool {
 	if s.Size() < o.Size() {
 		return false
 	}
+	ctx, cl := context.WithCancel(context.Background())
+	defer cl()
+
 	// iterate o, and increment s finding each element
 	// i.e. merge algorithm but with channels
-	iterO := o.iterate()
-	iterS := s.iterate()
+	iterO := o.iterate(ctx)
+	iterS := s.iterate(ctx)
 
 	idxO := 0
 	idxS := 0
@@ -410,8 +415,10 @@ func (s *TreeSet[T, C]) Equal(o *TreeSet[T, C]) bool {
 		return false
 	}
 
-	iterS := s.iterate()
-	iterO := o.iterate()
+	ctx, cl := context.WithCancel(context.Background())
+	defer cl()
+	iterS := s.iterate(ctx)
+	iterO := o.iterate(ctx)
 	for i := 0; i < s.Size(); i++ {
 		nextS := <-iterS
 		nextO := <-iterO
@@ -443,8 +450,9 @@ func (s *TreeSet[T, C]) String() string {
 // element into a string. The result contains elements in order.
 func (s *TreeSet[T, C]) StringFunc(f func(element T) string) string {
 	l := make([]string, 0, s.Size())
-	s.infix(func(n *node[T]) {
+	s.infix(func(n *node[T]) bool {
 		l = append(l, f(n.element))
+		return true
 	}, s.root)
 	return fmt.Sprintf("%s", l)
 }
@@ -849,12 +857,14 @@ func (s *TreeSet[T, C]) compare(a, b *node[T]) int {
 	return s.comparison(a.element, b.element)
 }
 
-func (s *TreeSet[T, C]) infix(visit func(*node[T]), n *node[T]) {
+func (s *TreeSet[T, C]) infix(visit func(*node[T]) (next bool), n *node[T]) {
 	if n == nil {
 		return
 	}
 	s.infix(visit, n.left)
-	visit(n)
+	if !visit(n) {
+		return
+	}
 	s.infix(visit, n.right)
 }
 
@@ -903,12 +913,23 @@ func (s *TreeSet[T, C]) prefix(visit func(*node[T]), n *node[T]) {
 	s.prefix(visit, n.right)
 }
 
-func (s *TreeSet[T, C]) iterate() <-chan *node[T] {
+func (s *TreeSet[T, C]) iterate(ctx context.Context) <-chan *node[T] {
 	c := make(chan *node[T], 1)
-	v := func(n *node[T]) {
-		c <- n
+	if ctx == nil {
+		ctx = context.Background()
 	}
-	go s.infix(v, s.root)
+	v := func(n *node[T]) bool {
+		select {
+		case <-ctx.Done():
+			return false
+		case c <- n:
+			return true
+		}
+	}
+	go func() {
+		defer close(c)
+		s.infix(v, s.root)
+	}()
 	return c
 }
 

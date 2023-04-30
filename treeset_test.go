@@ -4,12 +4,13 @@
 package set
 
 import (
+	"context"
 	"fmt"
+	"github.com/shoenig/test/must"
+	"go.uber.org/goleak"
 	"math/rand"
 	"strings"
 	"testing"
-
-	"github.com/shoenig/test/must"
 )
 
 const (
@@ -268,6 +269,11 @@ func TestTreeSet_Subset(t *testing.T) {
 		t1 := TreeSetFrom[int, Compare[int]]([]int{9, 7, 8, 5, 4, 2, 1, 3}, Cmp[int])
 		t2 := TreeSetFrom[int, Compare[int]]([]int{5, 1, 2, 8, 3}, Cmp[int])
 		must.True(t, t1.Subset(t2))
+	})
+	t.Run("diff set", func(t *testing.T) {
+		t1 := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5}, Cmp[int])
+		t2 := TreeSetFrom[int, Compare[int]]([]int{6, 7, 8, 9, 10}, Cmp[int])
+		must.False(t, t1.Subset(t2))
 	})
 }
 
@@ -843,4 +849,41 @@ func shuffle(s []int) []int {
 		c[i], c[swp] = c[swp], c[i]
 	}
 	return c
+}
+
+func TestTreeSet_infix(t *testing.T) {
+	ts := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3, 11, 13}, Cmp[int])
+	isOdd := func(n *node[int]) bool {
+		return n.element%2 == 1
+	}
+	odds := make([]int, 0, 5)
+	ts.infix(func(n *node[int]) bool {
+		if n.element > 8 {
+			return false
+		}
+		if isOdd(n) {
+			odds = append(odds, n.element)
+		}
+
+		return true
+	}, ts.root)
+	must.Eq(t, []int{1, 3, 5, 7}, odds)
+}
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
+
+func TestTreeSet_iterate(t *testing.T) {
+	s := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3, 11}, Cmp[int])
+	ctx, cl := context.WithCancel(context.Background())
+	defer cl()
+	ret := make([]int, 0, 9)
+	ch := s.iterate(ctx)
+	for n := range ch {
+		if n.element > 3 {
+			break
+		}
+		ret = append(ret, n.element)
+	}
+	must.Eq(t, []int{1, 2, 3}, ret)
 }
