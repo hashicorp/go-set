@@ -8,13 +8,13 @@ type serializable[T any] interface {
 	InsertSlice([]T) bool
 }
 
-// marshalJson will serialize a Serializable[T] into a json byte array
-func marshalJson[T any](s serializable[T]) ([]byte, error) {
+// marshalJSON will serialize a Serializable[T] into a json byte array
+func marshalJSON[T any](s serializable[T]) ([]byte, error) {
 	return json.Marshal(s.Slice())
 }
 
-// unmarshalJson will deserialize a json byte array into a Serializable[T]
-func unmarshalJson[T any](s serializable[T], data []byte) error {
+// unmarshalJSON will deserialize a json byte array into a Serializable[T]
+func unmarshalJSON[T any](s serializable[T], data []byte) error {
 	slice := make([]T, 0)
 	err := json.Unmarshal(data, &slice)
 	if err != nil {
