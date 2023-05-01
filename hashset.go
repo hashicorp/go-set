@@ -332,3 +332,11 @@ func (s *HashSet[T, H]) MarshalJSON() ([]byte, error) {
 func (s *HashSet[T, H]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
+
+func (s *HashSet[T, H]) ForEach(visit func(T) bool) {
+	for _, item := range s.items {
+		if !visit(item) {
+			return
+		}
+	}
+}
