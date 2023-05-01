@@ -457,6 +457,12 @@ func (s *TreeSet[T, C]) StringFunc(f func(element T) string) string {
 	return fmt.Sprintf("%s", l)
 }
 
+func (s *TreeSet[T, C]) ForEach(visit func(T) bool) {
+	s.infix(func(n *node[T]) (next bool) {
+		return visit(n.element)
+	}, s.root)
+}
+
 // Red-Black Tree Invariants
 //
 // 1. each node is either red or black
@@ -857,7 +863,10 @@ func (s *TreeSet[T, C]) compare(a, b *node[T]) int {
 	return s.comparison(a.element, b.element)
 }
 
-func (s *TreeSet[T, C]) infix(visit func(*node[T]) (next bool), n *node[T]) {
+// TreeNodeVisit is a function that is called for each node in the tree.
+type TreeNodeVisit[T any] func(*node[T]) (next bool)
+
+func (s *TreeSet[T, C]) infix(visit TreeNodeVisit[T], n *node[T]) {
 	if n == nil {
 		return
 	}

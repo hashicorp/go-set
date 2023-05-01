@@ -340,3 +340,11 @@ func (s *Set[T]) MarshalJSON() ([]byte, error) {
 func (s *Set[T]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
+
+func (s *Set[T]) ForEach(visit func(T) bool) {
+	for item := range s.items {
+		if !visit(item) {
+			return
+		}
+	}
+}
