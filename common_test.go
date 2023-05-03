@@ -1,10 +1,11 @@
 package set
 
 import (
-	"github.com/shoenig/test/must"
 	"sort"
 	"strconv"
 	"testing"
+
+	"github.com/shoenig/test/must"
 )
 
 func TestInsertSliceFunc(t *testing.T) {
@@ -74,7 +75,7 @@ func TestTransform(t *testing.T) {
 		a := From(ints(3))
 		t.Run("set -> set", func(t *testing.T) {
 			b := New[string](3)
-			Transform[int, string](a, b, func(element int) string {
+			TransformUnion[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
 			slice := b.Slice()
@@ -84,7 +85,7 @@ func TestTransform(t *testing.T) {
 
 		t.Run("set -> hashset", func(t *testing.T) {
 			b := NewHashSet[*company, string](10)
-			Transform[int, *company](a, b, func(element int) *company {
+			TransformUnion[int, *company](a, b, func(element int) *company {
 				return &company{
 					address: "street",
 					floor:   element,
@@ -96,7 +97,7 @@ func TestTransform(t *testing.T) {
 		})
 		t.Run("set -> treeSet", func(t *testing.T) {
 			b := NewTreeSet[string, Compare[string]](Cmp[string])
-			Transform[int, string](a, b, func(element int) string {
+			TransformUnion[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
 			slice := b.Slice()
@@ -109,7 +110,7 @@ func TestTransform(t *testing.T) {
 		a.InsertSlice([]*company{c1, c2, c3})
 		t.Run("hashSet -> set", func(t *testing.T) {
 			b := New[int](3)
-			Transform[*company, int](a, b, func(element *company) int {
+			TransformUnion[*company, int](a, b, func(element *company) int {
 				return element.floor
 			})
 			slice := b.Slice()
@@ -118,7 +119,7 @@ func TestTransform(t *testing.T) {
 		})
 		t.Run("hashSet -> hashSet", func(t *testing.T) {
 			b := NewHashSet[*company, string](10)
-			Transform[*company, *company](a, b, func(element *company) *company {
+			TransformUnion[*company, *company](a, b, func(element *company) *company {
 				return &company{
 					address: element.address,
 					floor:   element.floor * 5,
@@ -130,7 +131,7 @@ func TestTransform(t *testing.T) {
 		})
 		t.Run("hashSet -> treeSet", func(t *testing.T) {
 			b := NewTreeSet[int, Compare[int]](Cmp[int])
-			Transform[*company, int](a, b, func(element *company) int {
+			TransformUnion[*company, int](a, b, func(element *company) int {
 				return element.floor
 			})
 			slice := b.Slice()
@@ -142,7 +143,7 @@ func TestTransform(t *testing.T) {
 		a := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3}, Cmp[int])
 		t.Run("treeSet -> set", func(t *testing.T) {
 			b := New[string](3)
-			Transform[int, string](a, b, func(element int) string {
+			TransformUnion[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
 			slice := b.Slice()
@@ -151,7 +152,7 @@ func TestTransform(t *testing.T) {
 		})
 		t.Run("treeSet -> hashSet", func(t *testing.T) {
 			b := NewHashSet[*company, string](10)
-			Transform[int, *company](a, b, func(element int) *company {
+			TransformUnion[int, *company](a, b, func(element int) *company {
 				return &company{
 					address: "street",
 					floor:   element,
@@ -163,7 +164,7 @@ func TestTransform(t *testing.T) {
 		})
 		t.Run("treeSet -> treeSet", func(t *testing.T) {
 			b := NewTreeSet[string, Compare[string]](Cmp[string])
-			Transform[int, string](a, b, func(element int) string {
+			TransformUnion[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
 			slice := b.Slice()
