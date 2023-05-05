@@ -22,7 +22,6 @@ func ExampleSet_Insert() {
 	// [1 2 3]
 }
 
-// InsertSlice
 func ExampleSet_InsertSlice() {
 	s := New[int](10)
 	s.InsertSlice([]int{1, 1, 2, 3, 2})
@@ -33,7 +32,6 @@ func ExampleSet_InsertSlice() {
 	// [1 2 3]
 }
 
-// InsertSet
 func ExampleSet_InsertSet() {
 	s := New[int](10)
 	s.InsertSet(From([]int{1, 1, 2, 3, 2}))
@@ -44,7 +42,6 @@ func ExampleSet_InsertSet() {
 	// [1 2 3]
 }
 
-// Remove
 func ExampleSet_Remove() {
 	s := New[int](10)
 	s.InsertSlice([]int{1, 1, 2, 3, 2})
@@ -56,7 +53,6 @@ func ExampleSet_Remove() {
 	// [1 3]
 }
 
-// RemoveSlice
 func ExampleSet_RemoveSlice() {
 	s := New[int](10)
 	s.InsertSlice([]int{1, 1, 2, 3, 2})
@@ -68,7 +64,6 @@ func ExampleSet_RemoveSlice() {
 	// [1]
 }
 
-// RemoveSet
 func ExampleSet_RemoveSet() {
 	s := New[int](10)
 	s.InsertSlice([]int{1, 1, 2, 3, 2})
@@ -80,7 +75,18 @@ func ExampleSet_RemoveSet() {
 	// [1]
 }
 
-// RemoveFunc
+func ExampleSet_RemoveFunc() {
+	s := From([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 0})
+	even := func(i int) bool {
+		return i%2 == 0
+	}
+	s.RemoveFunc(even)
+
+	fmt.Println(s)
+
+	// Output:
+	// [1 3 5 7 9]
+}
 
 func ExampleSet_Contains() {
 	s := From([]string{"red", "green", "blue"})
@@ -93,7 +99,6 @@ func ExampleSet_Contains() {
 	// false
 }
 
-// ContainsAll
 func ExampleSet_ContainsAll() {
 	s := From([]string{"red", "green", "blue"})
 
@@ -105,7 +110,6 @@ func ExampleSet_ContainsAll() {
 	// false
 }
 
-// ContainsSlice
 func ExampleSet_ContainsSlice() {
 	s := From([]string{"red", "green", "blue"})
 
@@ -119,7 +123,6 @@ func ExampleSet_ContainsSlice() {
 	// true
 }
 
-// Subset
 func ExampleSet_Subset() {
 	t1 := From([]string{"red", "green", "blue"})
 	t2 := From([]string{"red", "blue"})
@@ -133,7 +136,6 @@ func ExampleSet_Subset() {
 	// false
 }
 
-// Size
 func ExampleSet_Size() {
 	s := From([]string{"red", "green", "blue"})
 
@@ -143,7 +145,6 @@ func ExampleSet_Size() {
 	// 3
 }
 
-// Empty
 func ExampleSet_Empty() {
 	s := New[string](10)
 
@@ -153,7 +154,6 @@ func ExampleSet_Empty() {
 	// true
 }
 
-// Union
 func ExampleSet_Union() {
 	t1 := From([]string{"red", "green", "blue"})
 	t2 := From([]string{"red", "blue"})
@@ -167,7 +167,6 @@ func ExampleSet_Union() {
 	// [blue green orange red]
 }
 
-// Difference
 func ExampleSet_Difference() {
 	t1 := From([]string{"red", "green", "blue"})
 	t2 := From([]string{"red", "blue"})
@@ -181,7 +180,6 @@ func ExampleSet_Difference() {
 	// [blue green]
 }
 
-// Intersect
 func ExampleSet_Intersect() {
 	t1 := From([]string{"red", "green", "blue"})
 	t2 := From([]string{"red", "blue"})
@@ -198,7 +196,6 @@ func ExampleSet_Intersect() {
 	// []
 }
 
-// Equal
 func ExampleSet_Equal() {
 	t1 := From([]string{"red", "green", "blue"})
 	t2 := From([]string{"red", "blue"})
@@ -215,7 +212,6 @@ func ExampleSet_Equal() {
 	// true
 }
 
-// Copy
 func ExampleSet_Copy() {
 	s := From([]string{"red", "green", "blue"})
 	t := s.Copy()
@@ -226,7 +222,6 @@ func ExampleSet_Copy() {
 	// [blue green red]
 }
 
-// Slice
 func ExampleSet_Slice() {
 	s := From([]string{"red", "green", "blue"})
 	t := s.Slice()
@@ -238,7 +233,6 @@ func ExampleSet_Slice() {
 	// [blue green red]
 }
 
-// String
 func ExampleSet_String() {
 	s := From([]string{"red", "green", "blue"})
 
