@@ -6,11 +6,12 @@ package set
 import (
 	"context"
 	"fmt"
-	"github.com/shoenig/test/must"
-	"go.uber.org/goleak"
 	"math/rand"
 	"strings"
 	"testing"
+
+	"github.com/shoenig/test/must"
+	"go.uber.org/goleak"
 )
 
 const (
@@ -150,6 +151,17 @@ func TestTreeSet_InsertSlice(t *testing.T) {
 	must.False(t, ts.InsertSlice(numbers))
 }
 
+func TestTreeSet_InsertSet(t *testing.T) {
+	cmp := Cmp[int]
+
+	ts1 := TreeSetFrom[int, Compare[int]]([]int{1, 3, 5, 7, 9}, cmp)
+	ts2 := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3}, cmp)
+
+	must.True(t, ts1.InsertSet(ts2))
+	must.Eq(t, []int{1, 2, 3, 5, 7, 9}, ts1.Slice())
+	must.Eq(t, []int{1, 2, 3}, ts2.Slice())
+}
+
 func TestTreeSet_Remove_int(t *testing.T) {
 	cmp := Cmp[int]
 	ts := NewTreeSet[int, Compare[int]](cmp)
@@ -190,6 +202,40 @@ func TestTreeSet_RemoveSlice(t *testing.T) {
 
 	must.True(t, ts.RemoveSlice(numbers))
 	must.Empty(t, ts)
+}
+
+func TestTreeSet_RemoveSet(t *testing.T) {
+	cmp := Cmp[int]
+
+	ts1 := NewTreeSet[int, Compare[int]](cmp)
+	ts2 := NewTreeSet[int, Compare[int]](cmp)
+
+	numbers := ints(size)
+	random := shuffle(numbers)
+	ts1.InsertSlice(random)
+
+	random2 := shuffle(numbers[5:])
+	ts2.InsertSlice(random2)
+
+	ts1.RemoveSet(ts2)
+	result := ts1.Slice()
+	must.Eq(t, []int{1, 2, 3, 4, 5}, result)
+}
+
+func TestTreeSet_RemoveFunc(t *testing.T) {
+	cmp := Cmp[byte]
+
+	ts := TreeSetFrom[byte, Compare[byte]]([]byte{
+		'a', 'b', '1', 'c', '2', 'd',
+	}, cmp)
+
+	notAlpha := func(c byte) bool {
+		return c < 'a' || c > 'z'
+	}
+
+	ts.RemoveFunc(notAlpha)
+
+	must.Eq(t, []byte{'a', 'b', 'c', 'd'}, ts.Slice())
 }
 
 func TestTreeSet_Contains(t *testing.T) {

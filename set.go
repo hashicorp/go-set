@@ -159,7 +159,7 @@ func (s *Set[T]) RemoveSet(o *Set[T]) bool {
 // RemoveFunc will remove each element from s that satisfies condition f.
 //
 // Return true if s was modified, false otherwise.
-func (s *Set[T]) RemoveFunc(f func(item T) bool) bool {
+func (s *Set[T]) RemoveFunc(f func(T) bool) bool {
 	modified := false
 	for item := range s.items {
 		if applies := f(item); applies {
