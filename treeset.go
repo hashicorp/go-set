@@ -101,6 +101,21 @@ func (s *TreeSet[T, C]) InsertSlice(items []T) bool {
 	return modified
 }
 
+// InsertSet will insert each element of o into s.
+//
+// Return true if s was modified (at least one item of o was not already in s), false otherwise.
+func (s *TreeSet[T, C]) InsertSet(o *TreeSet[T, C]) bool {
+	modified := false
+	insert := func(item T) bool {
+		if s.Insert(item) {
+			modified = true
+		}
+		return true
+	}
+	o.ForEach(insert)
+	return modified
+}
+
 // Remove item from s.
 //
 // Returns true if s was modified (item was in s), false otherwise.
@@ -118,6 +133,36 @@ func (s *TreeSet[T, C]) RemoveSlice(items []T) bool {
 			modified = true
 		}
 	}
+	return modified
+}
+
+// RemoveSet will remove each element in o from s.
+//
+// Returns true if s was modified (at least one item in o was in s), false otherwise.
+func (s *TreeSet[T, C]) RemoveSet(o *TreeSet[T, C]) bool {
+	modified := false
+	remove := func(item T) bool {
+		if s.Remove(item) {
+			modified = true
+		}
+		return true
+	}
+	o.ForEach(remove)
+	return modified
+}
+
+// RemoveFunc will remove each element from s that satisifies condition f.
+//
+// Return true if s was modified, false otherwise.
+func (s *TreeSet[T, C]) RemoveFunc(f func(T) bool) bool {
+	modified := false
+	remove := func(item T) bool {
+		if f(item) && s.Remove(item) {
+			modified = true
+		}
+		return true
+	}
+	s.ForEach(remove)
 	return modified
 }
 

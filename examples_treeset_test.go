@@ -88,7 +88,22 @@ func ExampleTreeSet_InsertSlice() {
 	// [blue green red]
 }
 
-// InsertSet
+func ExampleTreeSet_InsertSet() {
+	s1 := TreeSetFrom[string, Compare[string]]([]string{"red", "green"}, Cmp[string])
+	s2 := TreeSetFrom[string, Compare[string]]([]string{"green", "blue"}, Cmp[string])
+
+	fmt.Println(s1)
+	fmt.Println(s2)
+
+	s1.InsertSet(s2)
+
+	fmt.Println(s1)
+
+	// Output:
+	// [green red]
+	// [blue green]
+	// [blue green red]
+}
 
 func ExampleTreeSet_Remove() {
 	s := TreeSetFrom[string, Compare[string]]([]string{"red", "green", "blue"}, Cmp[string])
@@ -124,9 +139,39 @@ func ExampleTreeSet_RemoveSlice() {
 	// [green]
 }
 
-// RemoveSet
+func ExampleTreeSet_RemoveSet() {
+	s1 := TreeSetFrom[string, Compare[string]]([]string{"a", "b", "c", "d", "e", "f"}, Cmp[string])
+	s2 := TreeSetFrom[string, Compare[string]]([]string{"e", "z", "a"}, Cmp[string])
 
-// RemoveFunc
+	fmt.Println(s1)
+	fmt.Println(s2)
+
+	s1.RemoveSet(s2)
+
+	fmt.Println(s1)
+
+	// Output:
+	// [a b c d e f]
+	// [a e z]
+	// [b c d f]
+}
+
+func ExampleTreeSet_RemoveFunc() {
+	s := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, Cmp[int])
+
+	fmt.Println(s)
+
+	even := func(i int) bool {
+		return i%2 == 0
+	}
+	s.RemoveFunc(even)
+
+	fmt.Println(s)
+
+	// Output:
+	// [1 2 3 4 5 6 7 8 9]
+	// [1 3 5 7 9]
+}
 
 func ExampleTreeSet_Contains() {
 	s := TreeSetFrom[string, Compare[string]]([]string{"red", "green", "blue"}, Cmp[string])
