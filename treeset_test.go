@@ -321,6 +321,12 @@ func TestTreeSet_Subset(t *testing.T) {
 		t2 := TreeSetFrom[int, Compare[int]]([]int{6, 7, 8, 9, 10}, Cmp[int])
 		must.False(t, t1.Subset(t2))
 	})
+
+	t.Run("exhaust s1", func(t *testing.T) {
+		s1 := TreeSetFrom[string, Compare[string]]([]string{"a", "b", "c", "d", "e"}, Cmp[string])
+		s2 := TreeSetFrom[string, Compare[string]]([]string{"a", "z"}, Cmp[string])
+		must.False(t, s1.Subset(s2))
+	})
 }
 
 func TestTreeSet_Union(t *testing.T) {

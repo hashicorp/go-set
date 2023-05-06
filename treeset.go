@@ -383,7 +383,8 @@ func (s *TreeSet[T, C]) Subset(o *TreeSet[T, C]) bool {
 next:
 	for ; idxO < o.Size(); idxO++ {
 		nextO := <-iterO
-		for ; idxS < s.Size(); idxS++ {
+		for idxS < s.Size() {
+			idxS++
 			nextS := <-iterS
 			cmp := s.compare(nextS, nextO)
 			switch {
