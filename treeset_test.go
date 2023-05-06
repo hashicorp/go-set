@@ -316,13 +316,14 @@ func TestTreeSet_Subset(t *testing.T) {
 		t2 := TreeSetFrom[int, Compare[int]]([]int{5, 1, 2, 8, 3}, Cmp[int])
 		must.True(t, t1.Subset(t2))
 	})
+
 	t.Run("diff set", func(t *testing.T) {
 		t1 := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5}, Cmp[int])
 		t2 := TreeSetFrom[int, Compare[int]]([]int{6, 7, 8, 9, 10}, Cmp[int])
 		must.False(t, t1.Subset(t2))
 	})
 
-	t.Run("exhaust s1", func(t *testing.T) {
+	t.Run("exhaust", func(t *testing.T) {
 		s1 := TreeSetFrom[string, Compare[string]]([]string{"a", "b", "c", "d", "e"}, Cmp[string])
 		s2 := TreeSetFrom[string, Compare[string]]([]string{"a", "z"}, Cmp[string])
 		must.False(t, s1.Subset(s2))

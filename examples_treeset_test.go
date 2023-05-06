@@ -197,7 +197,18 @@ func ExampleTreeSet_ContainsSlice() {
 	// false
 }
 
-// Subset
+func ExampleTreeSet_Subset() {
+	s1 := TreeSetFrom[string, Compare[string]]([]string{"a", "b", "c", "d", "e"}, Cmp[string])
+	s2 := TreeSetFrom[string, Compare[string]]([]string{"b", "d"}, Cmp[string])
+	s3 := TreeSetFrom[string, Compare[string]]([]string{"a", "z"}, Cmp[string])
+
+	fmt.Println(s1.Subset(s2))
+	fmt.Println(s1.Subset(s3))
+
+	// Output:
+	// true
+	// false
+}
 
 func ExampleTreeSet_Size() {
 	s := TreeSetFrom[string, Compare[string]]([]string{"red", "green", "blue"}, Cmp[string])
