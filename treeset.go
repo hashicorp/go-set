@@ -968,6 +968,25 @@ func (s *TreeSet[T, C]) prefix(visit func(*node[T]), n *node[T]) {
 	s.prefix(visit, n.right)
 }
 
+func (s *TreeSet[T, C]) iterate2() func() *node[T] {
+	stck := makeStack[*node[T]]()
+	current := s.root
+
+	for current != nil && !stck.empty() {
+		for current != nil {
+			stck.push(current)
+			current = current.left
+		}
+		current = stck.pop()
+
+		fmt.Println("current", current)
+
+		current = current.right
+	}
+
+	return nil
+}
+
 func (s *TreeSet[T, C]) iterate(ctx context.Context) <-chan *node[T] {
 	c := make(chan *node[T], 1)
 	if ctx == nil {
