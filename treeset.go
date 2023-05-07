@@ -4,7 +4,6 @@
 package set
 
 import (
-	"context"
 	"fmt"
 )
 
@@ -369,23 +368,21 @@ func (s *TreeSet[T, C]) Subset(o *TreeSet[T, C]) bool {
 	if s.Size() < o.Size() {
 		return false
 	}
-	ctx, cl := context.WithCancel(context.Background())
-	defer cl()
 
 	// iterate o, and increment s finding each element
 	// i.e. merge algorithm but with channels
-	iterO := o.iterate(ctx)
-	iterS := s.iterate(ctx)
+	iterO := o.iterate()
+	iterS := s.iterate()
 
 	idxO := 0
 	idxS := 0
 
 next:
 	for ; idxO < o.Size(); idxO++ {
-		nextO := <-iterO
+		nextO := iterO()
 		for idxS < s.Size() {
 			idxS++
-			nextS := <-iterS
+			nextS := iterS()
 			cmp := s.compare(nextS, nextO)
 			switch {
 			case cmp > 0:
@@ -461,13 +458,11 @@ func (s *TreeSet[T, C]) Equal(o *TreeSet[T, C]) bool {
 		return false
 	}
 
-	ctx, cl := context.WithCancel(context.Background())
-	defer cl()
-	iterS := s.iterate(ctx)
-	iterO := o.iterate(ctx)
+	iterS := s.iterate()
+	iterO := o.iterate()
 	for i := 0; i < s.Size(); i++ {
-		nextS := <-iterS
-		nextO := <-iterO
+		nextS := iterS()
+		nextO := iterO()
 		if s.compare(nextS, nextO) != 0 {
 			return false
 		}
@@ -968,24 +963,23 @@ func (s *TreeSet[T, C]) prefix(visit func(*node[T]), n *node[T]) {
 	s.prefix(visit, n.right)
 }
 
-func (s *TreeSet[T, C]) iterate(ctx context.Context) <-chan *node[T] {
-	c := make(chan *node[T], 1)
-	if ctx == nil {
-		ctx = context.Background()
+func (s *TreeSet[T, C]) iterate() func() *node[T] {
+	stck := makeStack[*node[T]]()
+
+	for n := s.root; n != nil; n = n.left {
+		stck.push(n)
 	}
-	v := func(n *node[T]) bool {
-		select {
-		case <-ctx.Done():
-			return false
-		case c <- n:
-			return true
+
+	return func() *node[T] {
+		if stck.empty() {
+			return nil
 		}
+		n := stck.pop()
+		for r := n.right; r != nil; r = r.left {
+			stck.push(r)
+		}
+		return n
 	}
-	go func() {
-		defer close(c)
-		s.infix(v, s.root)
-	}()
-	return c
 }
 
 // MarshalJSON implements the json.Marshaler interface.

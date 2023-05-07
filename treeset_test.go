@@ -4,14 +4,12 @@
 package set
 
 import (
-	"context"
 	"fmt"
 	"math/rand"
 	"strings"
 	"testing"
 
 	"github.com/shoenig/test/must"
-	"go.uber.org/goleak"
 )
 
 const (
@@ -922,21 +920,14 @@ func TestTreeSet_infix(t *testing.T) {
 	}, ts.root)
 	must.Eq(t, []int{1, 3, 5, 7}, odds)
 }
-func TestMain(m *testing.M) {
-	goleak.VerifyTestMain(m)
-}
 
-func TestTreeSet_iterate(t *testing.T) {
-	s := TreeSetFrom[int, Compare[int]]([]int{4, 7, 1, 5, 2, 8, 9, 3, 11}, Cmp[int])
-	ctx, cl := context.WithCancel(context.Background())
-	defer cl()
-	ret := make([]int, 0, 9)
-	ch := s.iterate(ctx)
-	for n := range ch {
-		if n.element > 3 {
-			break
-		}
-		ret = append(ret, n.element)
+func TestTreeSet_iterate2(t *testing.T) {
+	nums := shuffle(ints(11))
+	s := TreeSetFrom[int, Compare[int]](nums, Cmp[int])
+
+	iter := s.iterate()
+	for i := 1; i <= 11; i++ {
+		must.Eq(t, i, iter().element)
 	}
-	must.Eq(t, []int{1, 2, 3}, ret)
+	must.Nil(t, iter())
 }
