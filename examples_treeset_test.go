@@ -157,20 +157,20 @@ func ExampleTreeSet_RemoveSet() {
 }
 
 func ExampleTreeSet_RemoveFunc() {
-	s := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}, Cmp[int])
+	s := TreeSetFrom[int, Compare[int]](ints(20), Cmp[int])
 
 	fmt.Println(s)
 
 	even := func(i int) bool {
-		return i%2 == 0
+		return i%3 != 0
 	}
 	s.RemoveFunc(even)
 
 	fmt.Println(s)
 
 	// Output:
-	// [1 2 3 4 5 6 7 8 9]
-	// [1 3 5 7 9]
+	// [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
+	// [3 6 9 12 15 18]
 }
 
 func ExampleTreeSet_Contains() {
