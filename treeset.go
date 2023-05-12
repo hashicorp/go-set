@@ -342,10 +342,10 @@ func (s *TreeSet[T, C]) Empty() bool {
 // Slice returns the elements of s as a slice, in order.
 func (s *TreeSet[T, C]) Slice() []T {
 	result := make([]T, 0, s.Size())
-	s.infix(func(n *node[T]) bool {
-		result = append(result, n.element)
+	s.ForEach(func(element T) bool {
+		result = append(result, element)
 		return true
-	}, s.root)
+	})
 	return result
 }
 
@@ -496,10 +496,10 @@ func (s *TreeSet[T, C]) String() string {
 // element into a string. The result contains elements in order.
 func (s *TreeSet[T, C]) StringFunc(f func(element T) string) string {
 	l := make([]string, 0, s.Size())
-	s.infix(func(n *node[T]) bool {
-		l = append(l, f(n.element))
+	s.ForEach(func(element T) bool {
+		l = append(l, f(element))
 		return true
-	}, s.root)
+	})
 	return fmt.Sprintf("%s", l)
 }
 
@@ -912,15 +912,17 @@ func (s *TreeSet[T, C]) compare(a, b *node[T]) int {
 // TreeNodeVisit is a function that is called for each node in the tree.
 type TreeNodeVisit[T any] func(*node[T]) (next bool)
 
-func (s *TreeSet[T, C]) infix(visit TreeNodeVisit[T], n *node[T]) {
+func (s *TreeSet[T, C]) infix(visit TreeNodeVisit[T], n *node[T]) (next bool) {
 	if n == nil {
+		return true
+	}
+	if next = s.infix(visit, n.left); !next {
 		return
 	}
-	s.infix(visit, n.left)
-	if !visit(n) {
+	if next = visit(n); !next {
 		return
 	}
-	s.infix(visit, n.right)
+	return s.infix(visit, n.right)
 }
 
 func (s *TreeSet[T, C]) fillLeft(n *node[T], k *[]T) {

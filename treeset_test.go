@@ -909,7 +909,7 @@ func TestTreeSet_infix(t *testing.T) {
 	}
 	odds := make([]int, 0, 5)
 	ts.infix(func(n *node[int]) bool {
-		if n.element > 8 {
+		if n.element == 8 {
 			return false
 		}
 		if isOdd(n) {
