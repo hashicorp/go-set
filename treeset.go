@@ -154,15 +154,8 @@ func (s *TreeSet[T, C]) RemoveSet(o *TreeSet[T, C]) bool {
 //
 // Return true if s was modified, false otherwise.
 func (s *TreeSet[T, C]) RemoveFunc(f func(T) bool) bool {
-	modified := false
-	remove := func(item T) bool {
-		if f(item) && s.Remove(item) {
-			modified = true
-		}
-		return true
-	}
-	s.ForEach(remove)
-	return modified
+	removeIds := s.FilterSlice(f)
+	return s.RemoveSlice(removeIds)
 }
 
 // Min returns the smallest item in the set.
@@ -353,6 +346,18 @@ func (s *TreeSet[T, C]) Slice() []T {
 		result = append(result, n.element)
 		return true
 	}, s.root)
+	return result
+}
+
+// FilterSlice returns the elements of s that satisfy the predicate f.
+func (s *TreeSet[T, C]) FilterSlice(filter func(T) bool) []T {
+	result := make([]T, 0, s.Size())
+	s.ForEach(func(t T) bool {
+		if filter != nil && filter(t) {
+			result = append(result, t)
+		}
+		return true
+	})
 	return result
 }
 
