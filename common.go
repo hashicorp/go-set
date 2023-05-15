@@ -3,21 +3,32 @@
 
 package set
 
-// Common is the interface that all sets implement
+// Common is a minimal interface that all sets implement.
 type Common[T any] interface {
-	// Slice returns a slice of all elements in the set
+
+	// Slice returns a slice of all elements in the set.
+	//
+	// Note: order of elements depends on the underlying implementation.
 	Slice() []T
-	// Insert inserts an element into the set
-	// if the element already exists, it will return false
+
+	// Insert an element into the set.
+	//
+	// Returns true if the set is modified as a result.
 	Insert(T) bool
-	// InsertSlice inserts all elements from the slice into the set
+
+	// InsertSlice inserts all elements from the slice into the set.
+	//
+	// Returns true if the set was modified as a result.
 	InsertSlice([]T) bool
-	// Size returns the number of elements in the set
+
+	// Size returns the number of elements in the set.
 	Size() int
-	// ForEach  will call the callback function for each element in the set.
+
+	// ForEach will call the callback function for each element in the set.
 	// If the callback returns false, the iteration will stop.
-	// Note: iteration order depends on the underlying implementation;
-	ForEach(call func(T) bool)
+	//
+	// Note: iteration order depends on the underlying implementation.
+	ForEach(func(T) bool)
 }
 
 // InsertSliceFunc inserts all elements from the slice into the set
@@ -27,16 +38,24 @@ func InsertSliceFunc[T, E any](s Common[T], items []E, f func(element E) T) {
 	}
 }
 
-// TransformUnion transforms the set A into another set B
-func TransformUnion[T, E any](a Common[T], b Common[E], transform func(T) E) {
+// InsertSetFunc inserts the elements of a into b, applying the transform function
+// to each element before insertion.
+//
+// Returns true if b was modified as a result.
+func InsertSetFunc[T, E any](a Common[T], b Common[E], transform func(T) E) bool {
+	modified := false
 	a.ForEach(func(item T) bool {
-		_ = b.Insert(transform(item))
+		if b.Insert(transform(item)) {
+			modified = true
+		}
 		return true
 	})
+	return modified
 }
 
-// TransformSlice transforms the set into a slice
-func TransformSlice[T, E any](s Common[T], transform func(T) E) []E {
+// SliceFunc produces a slice of the elements in s, applying the transform
+// function to each element first.
+func SliceFunc[T, E any](s Common[T], transform func(T) E) []E {
 	slice := make([]E, 0, s.Size())
 	s.ForEach(func(item T) bool {
 		slice = append(slice, transform(item))
