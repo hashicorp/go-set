@@ -184,8 +184,6 @@ func ExampleTreeSet_Contains() {
 	// false
 }
 
-// ContainsAll
-
 func ExampleTreeSet_ContainsSlice() {
 	s := TreeSetFrom[string, Compare[string]]([]string{"red", "green", "blue"}, Cmp[string])
 
@@ -285,7 +283,19 @@ func ExampleTreeSet_Equal() {
 	// false
 }
 
-// Copy
+func ExampleTreeSet_Copy() {
+	s := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5}, Cmp[int])
+	c := s.Copy()
+	s.Remove(2)
+	s.Remove(4)
+
+	fmt.Println(s)
+	fmt.Println(c)
+
+	// Output:
+	// [1 3 5]
+	// [1 2 3 4 5]
+}
 
 func ExampleTreeSet_Slice() {
 	s := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3, 4, 5}, Cmp[int])
