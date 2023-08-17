@@ -21,7 +21,7 @@ jobs:
           version-file: go.mod
       - uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.52.2
+          version: v1.54.0
           skip-cache: true
   run-tests:
     timeout-minutes: 10

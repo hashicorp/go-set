@@ -1,6 +1,6 @@
 module github.com/hashicorp/go-set
 
-go 1.18
+go 1.21
 
 require github.com/shoenig/test v0.6.6
 

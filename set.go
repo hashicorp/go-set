@@ -15,13 +15,6 @@ type nothing struct{}
 
 var sentinel = nothing{}
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 // New creates a new Set with initial underlying capacity of size.
 //
 // A Set will automatically grow or shrink its capacity as items are added or
