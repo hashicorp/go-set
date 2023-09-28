@@ -3,8 +3,8 @@
 
 package set
 
-// Common is a minimal interface that all sets implement.
-type Common[T any] interface {
+// Collection is a minimal common interface that all sets implement.
+type Collection[T any] interface {
 
 	// Slice returns a slice of all elements in the set.
 	//
@@ -32,7 +32,7 @@ type Common[T any] interface {
 }
 
 // InsertSliceFunc inserts all elements from the slice into the set
-func InsertSliceFunc[T, E any](s Common[T], items []E, f func(element E) T) {
+func InsertSliceFunc[T, E any](s Collection[T], items []E, f func(element E) T) {
 	for _, item := range items {
 		s.Insert(f(item))
 	}
@@ -42,7 +42,7 @@ func InsertSliceFunc[T, E any](s Common[T], items []E, f func(element E) T) {
 // to each element before insertion.
 //
 // Returns true if b was modified as a result.
-func InsertSetFunc[T, E any](a Common[T], b Common[E], transform func(T) E) bool {
+func InsertSetFunc[T, E any](a Collection[T], b Collection[E], transform func(T) E) bool {
 	modified := false
 	a.ForEach(func(item T) bool {
 		if b.Insert(transform(item)) {
@@ -55,7 +55,7 @@ func InsertSetFunc[T, E any](a Common[T], b Common[E], transform func(T) E) bool
 
 // SliceFunc produces a slice of the elements in s, applying the transform
 // function to each element first.
-func SliceFunc[T, E any](s Common[T], transform func(T) E) []E {
+func SliceFunc[T, E any](s Collection[T], transform func(T) E) []E {
 	slice := make([]E, 0, s.Size())
 	s.ForEach(func(item T) bool {
 		slice = append(slice, transform(item))
