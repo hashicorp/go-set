@@ -37,11 +37,11 @@ func TestInsertSliceFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		s := NewTreeSet[string, Compare[string]](Cmp[string])
+		s := NewTreeSet[string](Compare[string])
 		InsertSliceFunc[string](s, numbers, func(element int) string {
 			return strconv.Itoa(element)
 		})
-		invariants(t, s, Cmp[string])
+		invariants(t, s, Compare[string])
 		must.SliceEqFunc(t, s.Slice(), []string{"1", "2", "3"}, func(a, b string) bool { return a == b })
 	})
 }
@@ -67,7 +67,7 @@ func TestSliceFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		s := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3}, Cmp[int])
+		s := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
 		slice := SliceFunc[int](s, func(element int) string {
 			return strconv.Itoa(element)
 		})
@@ -105,7 +105,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("set -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[string, Compare[string]](Cmp[string])
+			b := NewTreeSet[string](Compare[string])
 			modified := InsertSetFunc[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
@@ -154,7 +154,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("hashSet -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[int, Compare[int]](Cmp[int])
+			b := NewTreeSet[int](Compare[int])
 			modified := InsertSetFunc[*company, int](a, b, func(element *company) int {
 				return element.floor
 			})
@@ -174,7 +174,7 @@ func TestInsertSetFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		a := TreeSetFrom[int, Compare[int]]([]int{1, 2, 3}, Cmp[int])
+		a := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
 
 		t.Run("treeSet -> set", func(t *testing.T) {
 			b := New[string](3)
@@ -202,7 +202,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("treeSet -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[string, Compare[string]](Cmp[string])
+			b := NewTreeSet[string](Compare[string])
 			modified := InsertSetFunc[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})

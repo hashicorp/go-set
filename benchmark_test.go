@@ -74,7 +74,7 @@ func BenchmarkHashSet_Insert(b *testing.B) {
 
 func BenchmarkTreeSet_Insert(b *testing.B) {
 	for _, tc := range cases {
-		ts := TreeSetFrom[int, Compare[int]](random[int](tc.size), Cmp[int])
+		ts := TreeSetFrom[int](random[int](tc.size), Compare[int])
 		b.Run(tc.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				ts.Insert(i)
@@ -125,7 +125,7 @@ func BenchmarkHashSet_Minimum(b *testing.B) {
 
 func BenchmarkTreeSet_Minimum(b *testing.B) {
 	for _, tc := range cases {
-		ts := TreeSetFrom[int, Compare[int]](random[int](tc.size), Cmp[int])
+		ts := TreeSetFrom[int](random[int](tc.size), Compare[int])
 		b.Run(tc.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				_ = ts.Min()
@@ -178,7 +178,7 @@ func BenchmarkHashSet_Contains(b *testing.B) {
 
 func BenchmarkTreeSet_Contains(b *testing.B) {
 	for _, tc := range cases {
-		ts := TreeSetFrom[int, Compare[int]](random[int](tc.size), Cmp[int])
+		ts := TreeSetFrom[int](random[int](tc.size), Compare[int])
 		b.Run(tc.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				_ = ts.Contains(i)

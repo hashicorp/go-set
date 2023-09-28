@@ -42,7 +42,7 @@ func TestSerialization(t *testing.T) {
 	})
 
 	t.Run("TreeSet", func(t *testing.T) {
-		set := NewTreeSet[int, Compare[int]](Cmp[int])
+		set := NewTreeSet[int](Compare[int])
 		set.InsertSlice([]int{10, 3, 13})
 		bs, err := json.Marshal(set)
 		must.NoError(t, err)
@@ -50,7 +50,7 @@ func TestSerialization(t *testing.T) {
 		must.StrContains(t, string(bs), "3")
 		must.StrContains(t, string(bs), "13")
 
-		dstSet := NewTreeSet[int, Compare[int]](Cmp[int])
+		dstSet := NewTreeSet[int](Compare[int])
 		err = json.Unmarshal(bs, dstSet)
 		must.NoError(t, err)
 		must.Eq(t, set.Slice(), dstSet.Slice())
