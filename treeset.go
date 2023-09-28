@@ -7,23 +7,25 @@ import (
 	"fmt"
 )
 
-// Compare represents a function that compares two elements.
+// CompareFunc represents a function that compares two elements.
 //
 // Must return
 // < 0 if the first parameter is less than the second parameter
 // 0 if the two parameters are equal
 // > 0 if the first parameters is greater than the second parameter
-type Compare[T any] func(T, T) int
+type CompareFunc[T any] func(T, T) int
 
-// BuiltIn types compatible with Cmp
-type BuiltIn interface {
+// GoType represents a builtin type to Go. These types can be compared using
+// the CompareFunc[GoType] function.
+type GoType interface {
 	~string | ~int | ~uint | ~int64 | ~uint64 | ~int32 | ~uint32 | ~int16 | ~uint16 | ~int8 | ~uint8
 }
 
-// Cmp is a Compare function for the specified builtin type B.
+// Compare is a convenience implementation of CompareFunc[GoType] that can be
+// used for comparison of types built-in to Go.
 //
-// Common to use with string, int, etc.
-func Cmp[B BuiltIn](x, y B) int {
+// Common to use with string, int, uint, etc.
+func Compare[T GoType](x, y T) int {
 	switch {
 	case x < y:
 		return -1
@@ -43,21 +45,21 @@ func Cmp[B BuiltIn](x, y B) int {
 // https://en.wikipedia.org/wiki/Red–black_tree
 //
 // Not thread safe, and not safe for concurrent modification.
-type TreeSet[T any, C Compare[T]] struct {
-	comparison C
+type TreeSet[T any] struct {
+	comparison CompareFunc[T]
 	root       *node[T]
 	marker     *node[T]
 	size       int
 }
 
-// NewTreeSet creates a TreeSet of type T, comparing elements via C.
+// NewTreeSet creates a TreeSet of type T, comparing elements via a given
+// CompareFunc[T].
 //
 // T may be any type.
 //
-// C is an implementation of Compare[T]. For builtin types, Cmp provides
-// a convenient Compare implementation.
-func NewTreeSet[T any, C Compare[T]](compare C) *TreeSet[T, C] {
-	return &TreeSet[T, C]{
+// For builtin types, CompareBuiltin provides a convenient CompareFunc implementation.
+func NewTreeSet[T any](compare CompareFunc[T]) *TreeSet[T] {
+	return &TreeSet[T]{
 		comparison: compare,
 		root:       nil,
 		marker:     &node[T]{color: black},
@@ -69,9 +71,9 @@ func NewTreeSet[T any, C Compare[T]](compare C) *TreeSet[T, C] {
 //
 // T may be any type.
 //
-// C is an implementation of Compare[T]. For builtin types, Cmp provides a
+// C is an implementation of CompareFunc[T]. For builtin types, Cmp provides a
 // convenient Compare implementation.
-func TreeSetFrom[T any, C Compare[T]](items []T, compare C) *TreeSet[T, C] {
+func TreeSetFrom[T any](items []T, compare CompareFunc[T]) *TreeSet[T] {
 	s := NewTreeSet[T](compare)
 	s.InsertSlice(items)
 	return s
@@ -80,7 +82,7 @@ func TreeSetFrom[T any, C Compare[T]](items []T, compare C) *TreeSet[T, C] {
 // Insert item into s.
 //
 // Returns true if s was modified (item was not already in s), false otherwise.
-func (s *TreeSet[T, C]) Insert(item T) bool {
+func (s *TreeSet[T]) Insert(item T) bool {
 	return s.insert(&node[T]{
 		element: item,
 		color:   red,
@@ -90,7 +92,7 @@ func (s *TreeSet[T, C]) Insert(item T) bool {
 // InsertSlice will insert each item in items into s.
 //
 // Return true if s was modified (at least one item was not already in s), false otherwise.
-func (s *TreeSet[T, C]) InsertSlice(items []T) bool {
+func (s *TreeSet[T]) InsertSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Insert(item) {
@@ -103,7 +105,7 @@ func (s *TreeSet[T, C]) InsertSlice(items []T) bool {
 // InsertSet will insert each element of o into s.
 //
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *TreeSet[T, C]) InsertSet(o *TreeSet[T, C]) bool {
+func (s *TreeSet[T]) InsertSet(o *TreeSet[T]) bool {
 	modified := false
 	insert := func(item T) bool {
 		if s.Insert(item) {
@@ -118,14 +120,14 @@ func (s *TreeSet[T, C]) InsertSet(o *TreeSet[T, C]) bool {
 // Remove item from s.
 //
 // Returns true if s was modified (item was in s), false otherwise.
-func (s *TreeSet[T, C]) Remove(item T) bool {
+func (s *TreeSet[T]) Remove(item T) bool {
 	return s.delete(item)
 }
 
 // RemoveSlice will remove each item in items from s.
 //
 // Return true if s was modified (any item was in s), false otherwise.
-func (s *TreeSet[T, C]) RemoveSlice(items []T) bool {
+func (s *TreeSet[T]) RemoveSlice(items []T) bool {
 	modified := false
 	for _, item := range items {
 		if s.Remove(item) {
@@ -138,7 +140,7 @@ func (s *TreeSet[T, C]) RemoveSlice(items []T) bool {
 // RemoveSet will remove each element in o from s.
 //
 // Returns true if s was modified (at least one item in o was in s), false otherwise.
-func (s *TreeSet[T, C]) RemoveSet(o *TreeSet[T, C]) bool {
+func (s *TreeSet[T]) RemoveSet(o *TreeSet[T]) bool {
 	modified := false
 	remove := func(item T) bool {
 		if s.Remove(item) {
@@ -153,7 +155,7 @@ func (s *TreeSet[T, C]) RemoveSet(o *TreeSet[T, C]) bool {
 // RemoveFunc will remove each element from s that satisifies condition f.
 //
 // Return true if s was modified, false otherwise.
-func (s *TreeSet[T, C]) RemoveFunc(f func(T) bool) bool {
+func (s *TreeSet[T]) RemoveFunc(f func(T) bool) bool {
 	removeIds := s.FilterSlice(f)
 	return s.RemoveSlice(removeIds)
 }
@@ -161,7 +163,7 @@ func (s *TreeSet[T, C]) RemoveFunc(f func(T) bool) bool {
 // Min returns the smallest item in the set.
 //
 // Must not be called on an empty set.
-func (s *TreeSet[T, C]) Min() T {
+func (s *TreeSet[T]) Min() T {
 	if s.root == nil {
 		panic("min: tree is empty")
 	}
@@ -172,7 +174,7 @@ func (s *TreeSet[T, C]) Min() T {
 // Max returns the largest item in s.
 //
 // Must not be called on an empty set.
-func (s *TreeSet[T, C]) Max() T {
+func (s *TreeSet[T]) Max() T {
 	if s.root == nil {
 		panic("max: tree is empty")
 	}
@@ -181,14 +183,14 @@ func (s *TreeSet[T, C]) Max() T {
 }
 
 // TopK returns the top n (smallest) elements in s, in ascending order.
-func (s *TreeSet[T, C]) TopK(n int) []T {
+func (s *TreeSet[T]) TopK(n int) []T {
 	result := make([]T, 0, n)
 	s.fillLeft(s.root, &result)
 	return result
 }
 
 // BottomK returns the bottom n (largest) elements in s, in descending order.
-func (s *TreeSet[T, C]) BottomK(n int) []T {
+func (s *TreeSet[T]) BottomK(n int) []T {
 	result := make([]T, 0, n)
 	s.fillRight(s.root, &result)
 	return result
@@ -197,7 +199,7 @@ func (s *TreeSet[T, C]) BottomK(n int) []T {
 // FirstBelow returns the first element strictly below item.
 //
 // A zero value and false are returned if no such element exists.
-func (s *TreeSet[T, C]) FirstBelow(item T) (T, bool) {
+func (s *TreeSet[T]) FirstBelow(item T) (T, bool) {
 	var candidate *node[T] = nil
 	var n = s.root
 	for n != nil {
@@ -216,7 +218,7 @@ func (s *TreeSet[T, C]) FirstBelow(item T) (T, bool) {
 // FirstBelowEqual returns the first element below item (or item itself if present).
 //
 // A zero value and false are returned if no such element exists.
-func (s *TreeSet[T, C]) FirstBelowEqual(item T) (T, bool) {
+func (s *TreeSet[T]) FirstBelowEqual(item T) (T, bool) {
 	var candidate *node[T] = nil
 	var n = s.root
 	for n != nil {
@@ -235,7 +237,7 @@ func (s *TreeSet[T, C]) FirstBelowEqual(item T) (T, bool) {
 }
 
 // Below returns a TreeSet containing the elements of s that are < item.
-func (s *TreeSet[T, C]) Below(item T) *TreeSet[T, C] {
+func (s *TreeSet[T]) Below(item T) *TreeSet[T] {
 	result := NewTreeSet[T](s.comparison)
 	s.filterLeft(s.root, func(element T) bool {
 		return s.comparison(element, item) < 0
@@ -244,7 +246,7 @@ func (s *TreeSet[T, C]) Below(item T) *TreeSet[T, C] {
 }
 
 // BelowEqual returns a TreeSet containing the elements of s that are ≤ item.
-func (s *TreeSet[T, C]) BelowEqual(item T) *TreeSet[T, C] {
+func (s *TreeSet[T]) BelowEqual(item T) *TreeSet[T] {
 	result := NewTreeSet[T](s.comparison)
 	s.filterLeft(s.root, func(element T) bool {
 		return s.comparison(element, item) <= 0
@@ -255,7 +257,7 @@ func (s *TreeSet[T, C]) BelowEqual(item T) *TreeSet[T, C] {
 // FirstAbove returns the first element strictly above item.
 //
 // A zero value and false are returned if no such element exists.
-func (s *TreeSet[T, C]) FirstAbove(item T) (T, bool) {
+func (s *TreeSet[T]) FirstAbove(item T) (T, bool) {
 	var candidate *node[T] = nil
 	var n = s.root
 	for n != nil {
@@ -274,7 +276,7 @@ func (s *TreeSet[T, C]) FirstAbove(item T) (T, bool) {
 // FirstAboveEqual returns the first element above item (or item itself if present).
 //
 // A zero value and false are returned if no such element exists.
-func (s *TreeSet[T, C]) FirstAboveEqual(item T) (T, bool) {
+func (s *TreeSet[T]) FirstAboveEqual(item T) (T, bool) {
 	var candidate *node[T]
 	var n = s.root
 	for n != nil {
@@ -293,7 +295,7 @@ func (s *TreeSet[T, C]) FirstAboveEqual(item T) (T, bool) {
 }
 
 // After returns a TreeSet containing the elements of s that are > item.
-func (s *TreeSet[T, C]) Above(item T) *TreeSet[T, C] {
+func (s *TreeSet[T]) Above(item T) *TreeSet[T] {
 	result := NewTreeSet[T](s.comparison)
 	s.filterRight(s.root, func(element T) bool {
 		return s.comparison(element, item) > 0
@@ -302,7 +304,7 @@ func (s *TreeSet[T, C]) Above(item T) *TreeSet[T, C] {
 }
 
 // AfterEqual returns a TreeSet containing the elements of s that are ≥ item.
-func (s *TreeSet[T, C]) AboveEqual(item T) *TreeSet[T, C] {
+func (s *TreeSet[T]) AboveEqual(item T) *TreeSet[T] {
 	result := NewTreeSet[T](s.comparison)
 	s.filterRight(s.root, func(element T) bool {
 		return s.comparison(element, item) >= 0
@@ -311,7 +313,7 @@ func (s *TreeSet[T, C]) AboveEqual(item T) *TreeSet[T, C] {
 }
 
 // Contains returns whether item is present in s.
-func (s *TreeSet[T, C]) Contains(item T) bool {
+func (s *TreeSet[T]) Contains(item T) bool {
 	return s.locate(s.root, item) != nil
 }
 
@@ -320,7 +322,7 @@ func (s *TreeSet[T, C]) Contains(item T) bool {
 //
 // If the items slice is known to be set-like (no duplicates), EqualSlice provides
 // a more efficient implementation.
-func (s *TreeSet[T, C]) ContainsSlice(items []T) bool {
+func (s *TreeSet[T]) ContainsSlice(items []T) bool {
 	for _, item := range items {
 		if !s.Contains(item) {
 			return false
@@ -330,17 +332,17 @@ func (s *TreeSet[T, C]) ContainsSlice(items []T) bool {
 }
 
 // Size returns the number of elements in s.
-func (s *TreeSet[T, C]) Size() int {
+func (s *TreeSet[T]) Size() int {
 	return s.size
 }
 
 // Empty returns true if there are no elements in s.
-func (s *TreeSet[T, C]) Empty() bool {
+func (s *TreeSet[T]) Empty() bool {
 	return s.Size() == 0
 }
 
 // Slice returns the elements of s as a slice, in order.
-func (s *TreeSet[T, C]) Slice() []T {
+func (s *TreeSet[T]) Slice() []T {
 	result := make([]T, 0, s.Size())
 	s.ForEach(func(element T) bool {
 		result = append(result, element)
@@ -350,7 +352,7 @@ func (s *TreeSet[T, C]) Slice() []T {
 }
 
 // FilterSlice returns the elements of s that satisfy the predicate f.
-func (s *TreeSet[T, C]) FilterSlice(filter func(T) bool) []T {
+func (s *TreeSet[T]) FilterSlice(filter func(T) bool) []T {
 	result := make([]T, 0, s.Size())
 	s.ForEach(func(t T) bool {
 		if filter != nil && filter(t) {
@@ -362,7 +364,7 @@ func (s *TreeSet[T, C]) FilterSlice(filter func(T) bool) []T {
 }
 
 // Subset returns whether o is a subset of s.
-func (s *TreeSet[T, C]) Subset(o *TreeSet[T, C]) bool {
+func (s *TreeSet[T]) Subset(o *TreeSet[T]) bool {
 	// try the fast paths
 	if o.Empty() {
 		return true
@@ -404,7 +406,7 @@ next:
 }
 
 // Union returns a set that contains all elements of s and o combined.
-func (s *TreeSet[T, C]) Union(o *TreeSet[T, C]) *TreeSet[T, C] {
+func (s *TreeSet[T]) Union(o *TreeSet[T]) *TreeSet[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) { tree.Insert(n.element) }
 	s.prefix(f, s.root)
@@ -413,7 +415,7 @@ func (s *TreeSet[T, C]) Union(o *TreeSet[T, C]) *TreeSet[T, C] {
 }
 
 // Difference returns a set that contains elements of s that are not in o.
-func (s *TreeSet[T, C]) Difference(o *TreeSet[T, C]) *TreeSet[T, C] {
+func (s *TreeSet[T]) Difference(o *TreeSet[T]) *TreeSet[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) {
 		if !o.Contains(n.element) {
@@ -425,7 +427,7 @@ func (s *TreeSet[T, C]) Difference(o *TreeSet[T, C]) *TreeSet[T, C] {
 }
 
 // Intersect returns a set that contains elements that are present in both s and o.
-func (s *TreeSet[T, C]) Intersect(o *TreeSet[T, C]) *TreeSet[T, C] {
+func (s *TreeSet[T]) Intersect(o *TreeSet[T]) *TreeSet[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) {
 		if o.Contains(n.element) {
@@ -439,7 +441,7 @@ func (s *TreeSet[T, C]) Intersect(o *TreeSet[T, C]) *TreeSet[T, C] {
 // Copy creates a copy of s.
 //
 // Individual elements are reference copies.
-func (s *TreeSet[T, C]) Copy() *TreeSet[T, C] {
+func (s *TreeSet[T]) Copy() *TreeSet[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) {
 		tree.Insert(n.element)
@@ -449,7 +451,7 @@ func (s *TreeSet[T, C]) Copy() *TreeSet[T, C] {
 }
 
 // Equal return whether s and o contain the same elements.
-func (s *TreeSet[T, C]) Equal(o *TreeSet[T, C]) bool {
+func (s *TreeSet[T]) Equal(o *TreeSet[T]) bool {
 	// try the fast fail paths
 	if s.Empty() || o.Empty() {
 		return s.Size() == o.Size()
@@ -477,7 +479,7 @@ func (s *TreeSet[T, C]) Equal(o *TreeSet[T, C]) bool {
 }
 
 // EqualSlice returns whether s and items contain the same elements.
-func (s *TreeSet[T, C]) EqualSlice(items []T) bool {
+func (s *TreeSet[T]) EqualSlice(items []T) bool {
 	if s.Size() != len(items) {
 		return false
 	}
@@ -486,7 +488,7 @@ func (s *TreeSet[T, C]) EqualSlice(items []T) bool {
 
 // String creates a string representation of s, using "%v" printf formatting
 // each element into a string. The result contains elements in order.
-func (s *TreeSet[T, C]) String() string {
+func (s *TreeSet[T]) String() string {
 	return s.StringFunc(func(element T) string {
 		return fmt.Sprintf("%v", element)
 	})
@@ -494,7 +496,7 @@ func (s *TreeSet[T, C]) String() string {
 
 // StringFunc creates a string representation of s, using f to transform each
 // element into a string. The result contains elements in order.
-func (s *TreeSet[T, C]) StringFunc(f func(element T) string) string {
+func (s *TreeSet[T]) StringFunc(f func(element T) string) string {
 	l := make([]string, 0, s.Size())
 	s.ForEach(func(element T) bool {
 		l = append(l, f(element))
@@ -503,7 +505,7 @@ func (s *TreeSet[T, C]) StringFunc(f func(element T) string) string {
 	return fmt.Sprintf("%s", l)
 }
 
-func (s *TreeSet[T, C]) ForEach(visit func(T) bool) {
+func (s *TreeSet[T]) ForEach(visit func(T) bool) {
 	s.infix(func(n *node[T]) (next bool) {
 		return visit(n.element)
 	}, s.root)
@@ -549,7 +551,7 @@ func (n *node[T]) get() (T, bool) {
 	return n.element, true
 }
 
-func (s *TreeSet[T, C]) locate(start *node[T], target T) *node[T] {
+func (s *TreeSet[T]) locate(start *node[T], target T) *node[T] {
 	n := start
 	for {
 		if n == nil {
@@ -567,7 +569,7 @@ func (s *TreeSet[T, C]) locate(start *node[T], target T) *node[T] {
 	}
 }
 
-func (s *TreeSet[T, C]) rotateRight(n *node[T]) {
+func (s *TreeSet[T]) rotateRight(n *node[T]) {
 	parent := n.parent
 	leftChild := n.left
 
@@ -582,7 +584,7 @@ func (s *TreeSet[T, C]) rotateRight(n *node[T]) {
 	s.replaceChild(parent, n, leftChild)
 }
 
-func (s *TreeSet[T, C]) rotateLeft(n *node[T]) {
+func (s *TreeSet[T]) rotateLeft(n *node[T]) {
 	parent := n.parent
 	rightChild := n.right
 
@@ -597,7 +599,7 @@ func (s *TreeSet[T, C]) rotateLeft(n *node[T]) {
 	s.replaceChild(parent, n, rightChild)
 }
 
-func (s *TreeSet[T, C]) replaceChild(parent, previous, next *node[T]) {
+func (s *TreeSet[T]) replaceChild(parent, previous, next *node[T]) {
 	switch {
 	case parent == nil:
 		s.root = next
@@ -614,7 +616,7 @@ func (s *TreeSet[T, C]) replaceChild(parent, previous, next *node[T]) {
 	}
 }
 
-func (s *TreeSet[T, C]) insert(n *node[T]) bool {
+func (s *TreeSet[T]) insert(n *node[T]) bool {
 	var (
 		parent *node[T] = nil
 		tmp    *node[T] = s.root
@@ -651,7 +653,7 @@ func (s *TreeSet[T, C]) insert(n *node[T]) bool {
 	return true
 }
 
-func (s *TreeSet[T, C]) rebalanceInsertion(n *node[T]) {
+func (s *TreeSet[T]) rebalanceInsertion(n *node[T]) {
 	parent := n.parent
 
 	// case 1: parent is nil
@@ -724,7 +726,7 @@ func (s *TreeSet[T, C]) rebalanceInsertion(n *node[T]) {
 	}
 }
 
-func (s *TreeSet[T, C]) delete(element T) bool {
+func (s *TreeSet[T]) delete(element T) bool {
 	n := s.locate(s.root, element)
 	if n == nil {
 		return false
@@ -772,7 +774,7 @@ func (s *TreeSet[T, C]) delete(element T) bool {
 	return true
 }
 
-func (s *TreeSet[T, C]) delete01(n *node[T]) *node[T] {
+func (s *TreeSet[T]) delete01(n *node[T]) *node[T] {
 	// node only has left child, replace by left child
 	if n.left != nil {
 		s.replaceChild(n.parent, n, n.left)
@@ -797,7 +799,7 @@ func (s *TreeSet[T, C]) delete01(n *node[T]) *node[T] {
 	}
 }
 
-func (s *TreeSet[T, C]) rebalanceDeletion(n *node[T]) {
+func (s *TreeSet[T]) rebalanceDeletion(n *node[T]) {
 	// base case: node is root
 	if n == s.root {
 		n.color = black
@@ -829,7 +831,7 @@ func (s *TreeSet[T, C]) rebalanceDeletion(n *node[T]) {
 	}
 }
 
-func (s *TreeSet[T, C]) fixRedSibling(n *node[T], sibling *node[T]) {
+func (s *TreeSet[T]) fixRedSibling(n *node[T], sibling *node[T]) {
 	sibling.color = black
 	n.parent.color = red
 
@@ -841,7 +843,7 @@ func (s *TreeSet[T, C]) fixRedSibling(n *node[T], sibling *node[T]) {
 	}
 }
 
-func (s *TreeSet[T, C]) fixBlackSibling(n, sibling *node[T]) {
+func (s *TreeSet[T]) fixBlackSibling(n, sibling *node[T]) {
 	isLeftChild := n == n.parent.left
 
 	if isLeftChild && sibling.right.black() {
@@ -867,7 +869,7 @@ func (s *TreeSet[T, C]) fixBlackSibling(n, sibling *node[T]) {
 	}
 }
 
-func (s *TreeSet[T, C]) siblingOf(n *node[T]) *node[T] {
+func (s *TreeSet[T]) siblingOf(n *node[T]) *node[T] {
 	parent := n.parent
 	switch {
 	case n == parent.left:
@@ -879,7 +881,7 @@ func (s *TreeSet[T, C]) siblingOf(n *node[T]) *node[T] {
 	}
 }
 
-func (*TreeSet[T, C]) uncleOf(n *node[T]) *node[T] {
+func (*TreeSet[T]) uncleOf(n *node[T]) *node[T] {
 	grandparent := n.parent
 	switch {
 	case grandparent.left == n:
@@ -891,28 +893,28 @@ func (*TreeSet[T, C]) uncleOf(n *node[T]) *node[T] {
 	}
 }
 
-func (s *TreeSet[T, C]) min(n *node[T]) *node[T] {
+func (s *TreeSet[T]) min(n *node[T]) *node[T] {
 	for n.left != nil {
 		n = n.left
 	}
 	return n
 }
 
-func (s *TreeSet[T, C]) max(n *node[T]) *node[T] {
+func (s *TreeSet[T]) max(n *node[T]) *node[T] {
 	for n.right != nil {
 		n = n.right
 	}
 	return n
 }
 
-func (s *TreeSet[T, C]) compare(a, b *node[T]) int {
+func (s *TreeSet[T]) compare(a, b *node[T]) int {
 	return s.comparison(a.element, b.element)
 }
 
 // TreeNodeVisit is a function that is called for each node in the tree.
 type TreeNodeVisit[T any] func(*node[T]) (next bool)
 
-func (s *TreeSet[T, C]) infix(visit TreeNodeVisit[T], n *node[T]) (next bool) {
+func (s *TreeSet[T]) infix(visit TreeNodeVisit[T], n *node[T]) (next bool) {
 	if n == nil {
 		return true
 	}
@@ -925,7 +927,7 @@ func (s *TreeSet[T, C]) infix(visit TreeNodeVisit[T], n *node[T]) (next bool) {
 	return s.infix(visit, n.right)
 }
 
-func (s *TreeSet[T, C]) fillLeft(n *node[T], k *[]T) {
+func (s *TreeSet[T]) fillLeft(n *node[T], k *[]T) {
 	if n == nil {
 		return
 	}
@@ -943,7 +945,7 @@ func (s *TreeSet[T, C]) fillLeft(n *node[T], k *[]T) {
 	}
 }
 
-func (s *TreeSet[T, C]) fillRight(n *node[T], k *[]T) {
+func (s *TreeSet[T]) fillRight(n *node[T], k *[]T) {
 	if n == nil {
 		return
 	}
@@ -961,7 +963,7 @@ func (s *TreeSet[T, C]) fillRight(n *node[T], k *[]T) {
 	}
 }
 
-func (s *TreeSet[T, C]) prefix(visit func(*node[T]), n *node[T]) {
+func (s *TreeSet[T]) prefix(visit func(*node[T]), n *node[T]) {
 	if n == nil {
 		return
 	}
@@ -970,7 +972,7 @@ func (s *TreeSet[T, C]) prefix(visit func(*node[T]), n *node[T]) {
 	s.prefix(visit, n.right)
 }
 
-func (s *TreeSet[T, C]) iterate() func() *node[T] {
+func (s *TreeSet[T]) iterate() func() *node[T] {
 	stck := makeStack[*node[T]]()
 
 	for n := s.root; n != nil; n = n.left {
@@ -990,16 +992,16 @@ func (s *TreeSet[T, C]) iterate() func() *node[T] {
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (s *TreeSet[T, C]) MarshalJSON() ([]byte, error) {
+func (s *TreeSet[T]) MarshalJSON() ([]byte, error) {
 	return marshalJSON[T](s)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (s *TreeSet[T, C]) UnmarshalJSON(data []byte) error {
+func (s *TreeSet[T]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
 
-func (s *TreeSet[T, C]) filterLeft(n *node[T], accept func(element T) bool, result *TreeSet[T, C]) {
+func (s *TreeSet[T]) filterLeft(n *node[T], accept func(element T) bool, result *TreeSet[T]) {
 	if n == nil {
 		return
 	}
@@ -1012,7 +1014,7 @@ func (s *TreeSet[T, C]) filterLeft(n *node[T], accept func(element T) bool, resu
 	}
 }
 
-func (s *TreeSet[T, C]) filterRight(n *node[T], accept func(element T) bool, result *TreeSet[T, C]) {
+func (s *TreeSet[T]) filterRight(n *node[T], accept func(element T) bool, result *TreeSet[T]) {
 	if n == nil {
 		return
 	}
