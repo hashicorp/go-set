@@ -1,4 +1,4 @@
-module github.com/hashicorp/go-set
+module github.com/hashicorp/go-set/v2
 
 go 1.21
 
