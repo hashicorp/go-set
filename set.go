@@ -87,13 +87,14 @@ func (s *Set[T]) InsertSlice(items []T) bool {
 // InsertSet will insert each element of o into s.
 //
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *Set[T]) InsertSet(o *Set[T]) bool {
+func (s *Set[T]) InsertSet(o Collection[T]) bool {
 	modified := false
-	for item := range o.items {
+	o.ForEach(func(item T) bool {
 		if s.Insert(item) {
 			modified = true
 		}
-	}
+		return true
+	})
 	return modified
 }
 
