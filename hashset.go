@@ -17,37 +17,63 @@ type Hash interface {
 	~string | ~int | ~uint | ~int64 | ~uint64 | ~int32 | ~uint32 | ~int16 | ~uint16 | ~int8 | ~uint8
 }
 
-// HashFunc is a generic type constraint for any type that implements a Hash()
-// method with a Hash return type.
-type HashFunc[H Hash] interface {
+// Hasher represents a type that implements a Hash() method. Types that wish to
+// cache a hash value with an internal field should implement Hash accordingly.
+type Hasher[H Hash] interface {
 	Hash() H
 }
 
+// HasherFunc creates a closure around the T.Hash function so that the type can
+// be used as the HashFunc for a HashSet.
+func HasherFunc[T Hasher[H], H Hash]() HashFunc[T, H] {
+	return func(t T) H {
+		return t.Hash()
+	}
+}
+
+// HashFunc represents a function that that produces a hash value when applied
+// to a given T. Typically this will be implemented as T.Hash but by separating
+// HashFunc a HashSet can be made to make use of any hash implementation.
+type HashFunc[T any, H Hash] func(T) H
+
 // HashSet is a generic implementation of the mathematical data structure, oriented
 // around the use of a HashFunc to make hash values from other types.
-type HashSet[T HashFunc[H], H Hash] struct {
+type HashSet[T any, H Hash] struct {
+	fn    HashFunc[T, H]
 	items map[H]T
 }
 
-// NewHashSet creates a HashSet with underlying capacity of size.
+// NewHashSet creates a HashSet with underlying capacity of size and will compute
+// hash values from the T.Hash method.
+func NewHashSet[T Hasher[H], H Hash](size int) *HashSet[T, H] {
+	return NewHashSetFunc[T, H](size, HasherFunc[T, H]())
+}
+
+// NewHashSetFunc creates a HashSet with underlying capacity of size and uses
+// the given hashing function to compute hashes on elements.
 //
 // A HashSet will automatically grow or shrink its capacity as items are added
 // or removed.
-//
-// T must implement HashFunc[H], where H is of Hash type. This allows custom types
-// that include non-comparable fields to provide their own hash algorithm.
-func NewHashSet[T HashFunc[H], H Hash](size int) *HashSet[T, H] {
+func NewHashSetFunc[T any, H Hash](size int, fn HashFunc[T, H]) *HashSet[T, H] {
 	return &HashSet[T, H]{
+		fn:    fn,
 		items: make(map[H]T, max(0, size)),
 	}
 }
 
-// HashSetFrom creates a new HashSet containing each item in items.
+// HashSetFrom creates a new HashSet containing each element in items.
 //
 // T must implement HashFunc[H], where H is of type Hash. This allows custom types
 // that include non-comparable fields to provide their own hash algorithm.
-func HashSetFrom[T HashFunc[H], H Hash](items []T) *HashSet[T, H] {
+func HashSetFrom[T Hasher[H], H Hash](items []T) *HashSet[T, H] {
 	s := NewHashSet[T, H](len(items))
+	s.InsertSlice(items)
+	return s
+}
+
+// NewHashSetFromFunc creates a new HashSet containing each element in items.
+func HashSetFromFunc[T any, H Hash](items []T, hash HashFunc[T, H]) *HashSet[T, H] {
+	s := NewHashSetFunc[T, H](len(items), hash)
 	s.InsertSlice(items)
 	return s
 }
@@ -56,7 +82,7 @@ func HashSetFrom[T HashFunc[H], H Hash](items []T) *HashSet[T, H] {
 //
 // Return true if s was modified (item was not already in s), false otherwise.
 func (s *HashSet[T, H]) Insert(item T) bool {
-	key := item.Hash()
+	key := s.fn(item)
 	if _, exists := s.items[key]; exists {
 		return false
 	}
@@ -80,14 +106,14 @@ func (s *HashSet[T, H]) InsertSlice(items []T) bool {
 // InsertSet will insert each element of o into s.
 //
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *HashSet[T, H]) InsertSet(o *HashSet[T, H]) bool {
+func (s *HashSet[T, H]) InsertSet(o Collection[T]) bool {
 	modified := false
-	for key, value := range o.items {
-		if _, exists := s.items[key]; !exists {
+	o.ForEach(func(item T) bool {
+		if s.Insert(item) {
 			modified = true
 		}
-		s.items[key] = value
-	}
+		return true
+	})
 	return modified
 }
 
@@ -95,7 +121,7 @@ func (s *HashSet[T, H]) InsertSet(o *HashSet[T, H]) bool {
 //
 // Return true if s was modified (item was present), false otherwise.
 func (s *HashSet[T, H]) Remove(item T) bool {
-	key := item.Hash()
+	key := s.fn(item)
 	if _, exists := s.items[key]; !exists {
 		return false
 	}
@@ -146,7 +172,8 @@ func (s *HashSet[T, H]) RemoveFunc(f func(item T) bool) bool {
 
 // Contains returns whether item is present in s.
 func (s *HashSet[T, H]) Contains(item T) bool {
-	_, exists := s.items[item.Hash()]
+	hash := s.fn(item)
+	_, exists := s.items[hash]
 	return exists
 }
 
@@ -169,7 +196,7 @@ func (s *HashSet[T, H]) ContainsAll(items []T) bool {
 // If the slice is known to be set-like (no duplicates), EqualSlice provides
 // a more efficient implementation.
 func (s *HashSet[T, H]) ContainsSlice(items []T) bool {
-	return s.Equal(HashSetFrom[T, H](items))
+	return s.Equal(HashSetFromFunc[T, H](items, s.fn))
 }
 
 // Subset returns whether o is a subset of s.
@@ -197,7 +224,7 @@ func (s *HashSet[T, H]) Empty() bool {
 
 // Union returns a set that contains all elements of s and o combined.
 func (s *HashSet[T, H]) Union(o *HashSet[T, H]) *HashSet[T, H] {
-	result := NewHashSet[T, H](s.Size())
+	result := NewHashSetFunc[T, H](s.Size(), s.fn)
 	for key, item := range s.items {
 		result.items[key] = item
 	}
@@ -209,7 +236,7 @@ func (s *HashSet[T, H]) Union(o *HashSet[T, H]) *HashSet[T, H] {
 
 // Difference returns a set that contains elements of s that are not in o.
 func (s *HashSet[T, H]) Difference(o *HashSet[T, H]) *HashSet[T, H] {
-	result := NewHashSet[T, H](max(0, s.Size()-o.Size()))
+	result := NewHashSetFunc[T, H](max(0, s.Size()-o.Size()), s.fn)
 	for key, item := range s.items {
 		if _, exists := o.items[key]; !exists {
 			result.items[key] = item
@@ -220,7 +247,7 @@ func (s *HashSet[T, H]) Difference(o *HashSet[T, H]) *HashSet[T, H] {
 
 // Intersect returns a set that contains elements that are present in both s and o.
 func (s *HashSet[T, H]) Intersect(o *HashSet[T, H]) *HashSet[T, H] {
-	result := NewHashSet[T, H](0)
+	result := NewHashSetFunc[T, H](0, s.fn)
 	big, small := s, o
 	if s.Size() < o.Size() {
 		big, small = o, s
@@ -235,7 +262,7 @@ func (s *HashSet[T, H]) Intersect(o *HashSet[T, H]) *HashSet[T, H] {
 
 // Copy creates a shallow copy of s.
 func (s *HashSet[T, H]) Copy() *HashSet[T, H] {
-	result := NewHashSet[T, H](s.Size())
+	result := NewHashSetFunc[T, H](s.Size(), s.fn)
 	for key, item := range s.items {
 		result.items[key] = item
 	}
@@ -308,6 +335,8 @@ func (s *HashSet[T, H]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
 
+// ForEach iterates the set calling visit for each element. If visit returns
+// false the iteration is halted.
 func (s *HashSet[T, H]) ForEach(visit func(T) bool) {
 	for _, item := range s.items {
 		if !visit(item) {
