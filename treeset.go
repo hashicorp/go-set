@@ -105,15 +105,14 @@ func (s *TreeSet[T]) InsertSlice(items []T) bool {
 // InsertSet will insert each element of o into s.
 //
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *TreeSet[T]) InsertSet(o *TreeSet[T]) bool {
+func (s *TreeSet[T]) InsertSet(o Collection[T]) bool {
 	modified := false
-	insert := func(item T) bool {
+	o.ForEach(func(item T) bool {
 		if s.Insert(item) {
 			modified = true
 		}
 		return true
-	}
-	o.ForEach(insert)
+	})
 	return modified
 }
 

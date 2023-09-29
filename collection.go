@@ -6,20 +6,25 @@ package set
 // Collection is a minimal common interface that all sets implement.
 type Collection[T any] interface {
 
-	// Slice returns a slice of all elements in the set.
-	//
-	// Note: order of elements depends on the underlying implementation.
-	Slice() []T
-
 	// Insert an element into the set.
 	//
 	// Returns true if the set is modified as a result.
 	Insert(T) bool
 
-	// InsertSlice inserts all elements from the slice into the set.
+	// InsertSlice will insert each element of a given slice.
 	//
 	// Returns true if the set was modified as a result.
 	InsertSlice([]T) bool
+
+	// InsertSet will insert each element of a given set.
+	//
+	// Returns true if the set was modified as a result.
+	InsertSet(Collection[T]) bool
+
+	// Slice returns a slice of all elements in the set.
+	//
+	// Note: order of elements depends on the underlying implementation.
+	Slice() []T
 
 	// Size returns the number of elements in the set.
 	Size() int
