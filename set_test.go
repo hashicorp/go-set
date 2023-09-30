@@ -10,6 +10,9 @@ import (
 	"github.com/shoenig/test/must"
 )
 
+// assertion that Set[T] implements Collection[T]
+var _ Collection[nothing] = (*Set[nothing])(nil)
+
 type employee struct {
 	name string
 	id   int
@@ -161,20 +164,6 @@ func TestSet_Contains(t *testing.T) {
 	})
 }
 
-func TestSet_ContainsAll(t *testing.T) {
-	t.Run("contains subset", func(t *testing.T) {
-		s := New[int](10)
-		must.True(t, s.InsertSlice([]int{1, 2, 3, 4, 5}))
-		must.True(t, s.ContainsAll([]int{1, 3, 5}))
-	})
-
-	t.Run("contains missing", func(t *testing.T) {
-		s := New[int](10)
-		must.True(t, s.InsertSlice([]int{1, 2, 3, 4, 5}))
-		must.False(t, s.ContainsAll([]int{1, 3, 5, 7}))
-	})
-}
-
 func TestSet_ContainsSlice(t *testing.T) {
 	t.Run("empty empty", func(t *testing.T) {
 		a := New[int](0)
@@ -255,7 +244,7 @@ func TestSet_Union(t *testing.T) {
 	t.Run("empty ∪ empty", func(t *testing.T) {
 		a := New[int](0)
 		b := New[int](10)
-		union := a.Union(b)
+		union := a.Union(b).(*Set[int])
 		must.MapEmpty(t, union.items)
 	})
 
@@ -263,7 +252,7 @@ func TestSet_Union(t *testing.T) {
 		a := New[int](10)
 		b := New[int](10)
 		b.InsertSlice([]int{1, 2, 3, 4, 5})
-		union := a.Union(b)
+		union := a.Union(b).(*Set[int])
 		must.MapContainsKeys(t, union.items, []int{1, 2, 3, 4, 5})
 	})
 
@@ -271,7 +260,7 @@ func TestSet_Union(t *testing.T) {
 		a := New[int](10)
 		a.InsertSlice([]int{1, 2, 3, 4, 5})
 		b := New[int](10)
-		union := a.Union(b)
+		union := a.Union(b).(*Set[int])
 		must.MapContainsKeys(t, union.items, []int{1, 2, 3, 4, 5})
 	})
 
@@ -280,7 +269,7 @@ func TestSet_Union(t *testing.T) {
 		must.True(t, a.InsertSlice([]int{2, 4, 6, 8}))
 		b := New[int](10)
 		must.True(t, b.InsertSlice([]int{4, 5, 6}))
-		union := a.Union(b)
+		union := a.Union(b).(*Set[int])
 		must.MapContainsKeys(t, union.items, []int{2, 4, 5, 6, 8})
 	})
 }
@@ -289,28 +278,28 @@ func TestSet_Difference(t *testing.T) {
 	t.Run("empty \\ empty", func(t *testing.T) {
 		a := New[int](10)
 		b := New[int](10)
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*Set[int])
 		must.MapEmpty(t, diff.items)
 	})
 
 	t.Run("empty \\ set", func(t *testing.T) {
 		a := New[int](10)
 		b := From([]int{1, 2, 3, 4, 5})
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*Set[int])
 		must.MapEmpty(t, diff.items)
 	})
 
 	t.Run("set \\ empty", func(t *testing.T) {
 		a := From([]int{1, 2, 3, 4, 5})
 		b := New[int](10)
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*Set[int])
 		must.MapContainsKeys(t, diff.items, []int{1, 2, 3, 4, 5})
 	})
 
 	t.Run("set \\ other", func(t *testing.T) {
 		a := From([]int{1, 2, 3, 4, 5, 6, 7, 8})
 		b := From([]int{2, 4, 6, 8, 10, 12})
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*Set[int])
 		must.MapContainsKeys(t, diff.items, []int{1, 3, 5, 7})
 	})
 }
@@ -319,35 +308,35 @@ func TestSet_Intersect(t *testing.T) {
 	t.Run("empty ∩ empty", func(t *testing.T) {
 		a := New[int](10)
 		b := New[int](10)
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*Set[int])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("set ∩ empty", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3})
 		b := New[int](10)
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*Set[int])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("empty ∩ set", func(t *testing.T) {
 		a := New[int](10)
 		b := From[int]([]int{1, 2, 3})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*Set[int])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("big ∩ small", func(t *testing.T) {
 		a := From[int]([]int{2, 3, 4, 6, 8})
 		b := From[int]([]int{4, 5, 6, 7})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*Set[int])
 		must.MapContainsKeys(t, intersect.items, []int{4, 6})
 	})
 
 	t.Run("small ∩ big", func(t *testing.T) {
 		a := From[int]([]int{4, 5, 6, 7})
 		b := From[int]([]int{2, 3, 4, 6, 8})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*Set[int])
 		must.MapContainsKeys(t, intersect.items, []int{4, 6})
 	})
 }
