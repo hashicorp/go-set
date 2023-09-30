@@ -102,12 +102,12 @@ func (s *TreeSet[T]) InsertSlice(items []T) bool {
 	return modified
 }
 
-// InsertSet will insert each element of o into s.
+// InsertSet will insert each element of col into s.
 //
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *TreeSet[T]) InsertSet(o Collection[T]) bool {
+func (s *TreeSet[T]) InsertSet(col Collection[T]) bool {
 	modified := false
-	o.ForEach(func(item T) bool {
+	col.ForEach(func(item T) bool {
 		if s.Insert(item) {
 			modified = true
 		}
@@ -136,27 +136,18 @@ func (s *TreeSet[T]) RemoveSlice(items []T) bool {
 	return modified
 }
 
-// RemoveSet will remove each element in o from s.
+// RemoveSet will remove each element in col from s.
 //
 // Returns true if s was modified (at least one item in o was in s), false otherwise.
-func (s *TreeSet[T]) RemoveSet(o *TreeSet[T]) bool {
-	modified := false
-	remove := func(item T) bool {
-		if s.Remove(item) {
-			modified = true
-		}
-		return true
-	}
-	o.ForEach(remove)
-	return modified
+func (s *TreeSet[T]) RemoveSet(col Collection[T]) bool {
+	return removeSet(s, col)
 }
 
 // RemoveFunc will remove each element from s that satisifies condition f.
 //
 // Return true if s was modified, false otherwise.
 func (s *TreeSet[T]) RemoveFunc(f func(T) bool) bool {
-	removeIds := s.FilterSlice(f)
-	return s.RemoveSlice(removeIds)
+	return removeFunc(s, f)
 }
 
 // Min returns the smallest item in the set.
@@ -362,29 +353,29 @@ func (s *TreeSet[T]) FilterSlice(filter func(T) bool) []T {
 	return result
 }
 
-// Subset returns whether o is a subset of s.
-func (s *TreeSet[T]) Subset(o *TreeSet[T]) bool {
+// Subset returns whether col is a subset of s.
+func (s *TreeSet[T]) Subset(col Collection[T]) bool {
 	// try the fast paths
-	if o.Empty() {
+	if col.Empty() {
 		return true
 	}
 	if s.Empty() {
 		return false
 	}
-	if s.Size() < o.Size() {
+	if s.Size() < col.Size() {
 		return false
 	}
 
 	// iterate o, and increment s finding each element
 	// i.e. merge algorithm but with channels
-	iterO := o.iterate()
+	iterO := col.(*TreeSet[T]).iterate()
 	iterS := s.iterate()
 
 	idxO := 0
 	idxS := 0
 
 next:
-	for ; idxO < o.Size(); idxO++ {
+	for ; idxO < col.Size(); idxO++ {
 		nextO := iterO()
 		for idxS < s.Size() {
 			idxS++
@@ -404,20 +395,29 @@ next:
 	return true
 }
 
-// Union returns a set that contains all elements of s and o combined.
-func (s *TreeSet[T]) Union(o *TreeSet[T]) *TreeSet[T] {
+// ProperSubset returns whether col is a proper subset of s.
+func (s *TreeSet[T]) ProperSubset(col Collection[T]) bool {
+	if s.Size() <= col.Size() {
+		return false
+	}
+	return s.Subset(col)
+}
+
+// Union returns a set that contains all elements of s and col combined.
+func (s *TreeSet[T]) Union(col Collection[T]) Collection[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) { tree.Insert(n.element) }
 	s.prefix(f, s.root)
-	o.prefix(f, o.root)
+	oSet := col.(*TreeSet[T])
+	oSet.prefix(f, oSet.root)
 	return tree
 }
 
-// Difference returns a set that contains elements of s that are not in o.
-func (s *TreeSet[T]) Difference(o *TreeSet[T]) *TreeSet[T] {
+// Difference returns a set that contains elements of s that are not in col.
+func (s *TreeSet[T]) Difference(col Collection[T]) Collection[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) {
-		if !o.Contains(n.element) {
+		if !col.Contains(n.element) {
 			tree.Insert(n.element)
 		}
 	}
@@ -425,11 +425,11 @@ func (s *TreeSet[T]) Difference(o *TreeSet[T]) *TreeSet[T] {
 	return tree
 }
 
-// Intersect returns a set that contains elements that are present in both s and o.
-func (s *TreeSet[T]) Intersect(o *TreeSet[T]) *TreeSet[T] {
+// Intersect returns a set that contains elements that are present in both s and col.
+func (s *TreeSet[T]) Intersect(col Collection[T]) Collection[T] {
 	tree := NewTreeSet[T](s.comparison)
 	f := func(n *node[T]) {
-		if o.Contains(n.element) {
+		if col.Contains(n.element) {
 			tree.Insert(n.element)
 		}
 	}
@@ -475,6 +475,11 @@ func (s *TreeSet[T]) Equal(o *TreeSet[T]) bool {
 	}
 
 	return true
+}
+
+// EqualSet returns s and col contain the same elements.
+func (s *TreeSet[T]) EqualSet(col Collection[T]) bool {
+	return equalSet(s, col)
 }
 
 // EqualSlice returns whether s and items contain the same elements.

@@ -12,6 +12,9 @@ import (
 	"github.com/shoenig/test/must"
 )
 
+// assertion that HashSet[T] implements Collection[T]
+var _ Collection[*company] = (*HashSet[*company, string])(nil)
+
 // company is an example type that is not comparable, and implements Hash() string
 type company struct {
 	_       func() // not comparable
@@ -282,18 +285,6 @@ func TestHashSet_Contains(t *testing.T) {
 	})
 }
 
-func TestHashSet_ContainsAll(t *testing.T) {
-	t.Run("contains subset", func(t *testing.T) {
-		s := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
-		must.True(t, s.ContainsAll([]*company{c2, c3, c4}))
-	})
-
-	t.Run("contains missing", func(t *testing.T) {
-		s := HashSetFrom[*company, string]([]*company{c1, c3})
-		must.False(t, s.ContainsAll([]*company{c1, c2, c3}))
-	})
-}
-
 func TestHashSet_ContainsSlice(t *testing.T) {
 	t.Run("empty empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](0)
@@ -414,21 +405,21 @@ func TestHashSet_Difference(t *testing.T) {
 	t.Run("empty \\ empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
 		b := NewHashSet[*company, string](10)
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*HashSet[*company, string])
 		must.MapEmpty(t, diff.items)
 	})
 
 	t.Run("empty \\ set", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
 		b := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*HashSet[*company, string])
 		must.MapEmpty(t, diff.items)
 	})
 
 	t.Run("set \\ empty", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
 		b := NewHashSet[*company, string](10)
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*HashSet[*company, string])
 		must.MapContainsKeys(t, diff.items, []string{
 			"street:1", "street:2", "street:3", "street:4", "street:5",
 		})
@@ -437,7 +428,7 @@ func TestHashSet_Difference(t *testing.T) {
 	t.Run("set \\ other", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5, c6, c7, c8})
 		b := HashSetFrom[*company, string]([]*company{c2, c4, c6, c8, c10, c10})
-		diff := a.Difference(b)
+		diff := a.Difference(b).(*HashSet[*company, string])
 		must.MapContainsKeys(t, diff.items, []string{
 			"street:1", "street:3", "street:5", "street:7",
 		})
@@ -448,28 +439,28 @@ func TestHashSet_Intersect(t *testing.T) {
 	t.Run("empty ∩ empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
 		b := NewHashSet[*company, string](10)
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*HashSet[*company, string])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("set ∩ empty", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
 		b := NewHashSet[*company, string](10)
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*HashSet[*company, string])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("empty ∩ set", func(t *testing.T) {
 		a := NewHashSet[*company, string](10)
 		b := HashSetFrom[*company, string]([]*company{c1, c2, c3})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*HashSet[*company, string])
 		must.MapEmpty(t, intersect.items)
 	})
 
 	t.Run("big ∩ small", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c2, c3, c4, c6, c8})
 		b := HashSetFrom[*company, string]([]*company{c4, c5, c6, c7})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*HashSet[*company, string])
 		must.MapContainsKeys(t, intersect.items, []string{
 			"street:4", "street:6",
 		})
@@ -478,7 +469,7 @@ func TestHashSet_Intersect(t *testing.T) {
 	t.Run("small ∩ big", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c4, c5, c6, c7})
 		b := HashSetFrom[*company, string]([]*company{c2, c3, c4, c6, c8})
-		intersect := a.Intersect(b)
+		intersect := a.Intersect(b).(*HashSet[*company, string])
 		must.MapContainsKeys(t, intersect.items, []string{
 			"street:4", "street:6",
 		})
