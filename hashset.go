@@ -103,12 +103,12 @@ func (s *HashSet[T, H]) InsertSlice(items []T) bool {
 	return modified
 }
 
-// InsertSet will insert each element of o into s.
+// InsertSet will insert each element of col into s.
 //
-// Return true if s was modified (at least one item of o was not already in s), false otherwise.
-func (s *HashSet[T, H]) InsertSet(o Collection[T]) bool {
+// Return true if s was modified (at least one item of col was not already in s), false otherwise.
+func (s *HashSet[T, H]) InsertSet(col Collection[T]) bool {
 	modified := false
-	o.ForEach(func(item T) bool {
+	col.ForEach(func(item T) bool {
 		if s.Insert(item) {
 			modified = true
 		}
@@ -142,32 +142,18 @@ func (s *HashSet[T, H]) RemoveSlice(items []T) bool {
 	return modified
 }
 
-// RemoveSet will remove each element of o from s.
+// RemoveSet will remove each element of col from s.
 //
-// Return true if s was modified (any item of o was present in s), false otherwise.
-func (s *HashSet[T, H]) RemoveSet(o *HashSet[T, H]) bool {
-	modified := false
-	for key := range o.items {
-		if _, exists := s.items[key]; exists {
-			modified = true
-			delete(s.items, key)
-		}
-	}
-	return modified
+// Return true if s was modified (any item of col was present in s), false otherwise.
+func (s *HashSet[T, H]) RemoveSet(col Collection[T]) bool {
+	return removeSet(s, col)
 }
 
 // RemoveFunc will remove each element from s that satisfies condition f.
 //
 // Return true if s was modified, false otherwise.
 func (s *HashSet[T, H]) RemoveFunc(f func(item T) bool) bool {
-	modified := false
-	for _, item := range s.items {
-		if applies := f(item); applies {
-			s.Remove(item)
-			modified = true
-		}
-	}
-	return modified
+	return removeFunc(s, f)
 }
 
 // Contains returns whether item is present in s.
@@ -175,19 +161,6 @@ func (s *HashSet[T, H]) Contains(item T) bool {
 	hash := s.fn(item)
 	_, exists := s.items[hash]
 	return exists
-}
-
-// ContainsAll returns whether s contains at least every item in items.
-func (s *HashSet[T, H]) ContainsAll(items []T) bool {
-	if len(s.items) < len(items) {
-		return false
-	}
-	for _, item := range items {
-		if !s.Contains(item) {
-			return false
-		}
-	}
-	return true
 }
 
 // ContainsSlice returns whether s contains the same set of of elements
@@ -199,17 +172,17 @@ func (s *HashSet[T, H]) ContainsSlice(items []T) bool {
 	return s.Equal(HashSetFromFunc[T, H](items, s.fn))
 }
 
-// Subset returns whether o is a subset of s.
-func (s *HashSet[T, H]) Subset(o *HashSet[T, H]) bool {
-	if len(s.items) < len(o.items) {
+// Subset returns whether col is a subset of s.
+func (s *HashSet[T, H]) Subset(col Collection[T]) bool {
+	return subset(s, col)
+}
+
+// ProperSubset returns whether col is a proper subset of s.
+func (s *HashSet[T, H]) ProperSubset(col Collection[T]) bool {
+	if len(s.items) <= col.Size() {
 		return false
 	}
-	for _, item := range o.items {
-		if !s.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return s.Subset(col)
 }
 
 // Size returns the cardinality of s.
@@ -222,41 +195,30 @@ func (s *HashSet[T, H]) Empty() bool {
 	return s.Size() == 0
 }
 
-// Union returns a set that contains all elements of s and o combined.
-func (s *HashSet[T, H]) Union(o *HashSet[T, H]) *HashSet[T, H] {
+// Union returns a set that contains all elements of s and col combined.
+func (s *HashSet[T, H]) Union(col Collection[T]) Collection[T] {
 	result := NewHashSetFunc[T, H](s.Size(), s.fn)
-	for key, item := range s.items {
-		result.items[key] = item
-	}
-	for key, item := range o.items {
-		result.items[key] = item
-	}
+	insert(result, s)
+	insert(result, col)
 	return result
 }
 
-// Difference returns a set that contains elements of s that are not in o.
-func (s *HashSet[T, H]) Difference(o *HashSet[T, H]) *HashSet[T, H] {
-	result := NewHashSetFunc[T, H](max(0, s.Size()-o.Size()), s.fn)
-	for key, item := range s.items {
-		if _, exists := o.items[key]; !exists {
-			result.items[key] = item
-		}
-	}
-	return result
-}
-
-// Intersect returns a set that contains elements that are present in both s and o.
-func (s *HashSet[T, H]) Intersect(o *HashSet[T, H]) *HashSet[T, H] {
-	result := NewHashSetFunc[T, H](0, s.fn)
-	big, small := s, o
-	if s.Size() < o.Size() {
-		big, small = o, s
-	}
-	for _, item := range small.items {
-		if big.Contains(item) {
+// Difference returns a set that contains elements of s that are not in col.
+func (s *HashSet[T, H]) Difference(col Collection[T]) Collection[T] {
+	result := NewHashSetFunc[T, H](max(0, s.Size()-col.Size()), s.fn)
+	s.ForEach(func(item T) bool {
+		if !col.Contains(item) {
 			result.Insert(item)
 		}
-	}
+		return true
+	})
+	return result
+}
+
+// Intersect returns a set that contains elements that are present in both s and col.
+func (s *HashSet[T, H]) Intersect(col Collection[T]) Collection[T] {
+	result := NewHashSetFunc[T, H](0, s.fn)
+	intersect(result, s, col)
 	return result
 }
 
@@ -313,16 +275,18 @@ func (s *HashSet[T, H]) Equal(o *HashSet[T, H]) bool {
 	return true
 }
 
+// EqualSet returns whether s and col contain the same elements.
+func (s *HashSet[T, H]) EqualSet(col Collection[T]) bool {
+	return equalSet(s, col)
+}
+
 // EqualSlice returns whether s and items contain the same elements.
 //
 // If items contains duplicates EqualSlice will return false; it is
 // assumed that items is itself set-like. For comparing equality with
 // a slice that may contain duplicates, use ContainsSlice.
 func (s *HashSet[T, H]) EqualSlice(items []T) bool {
-	if len(s.items) != len(items) {
-		return false
-	}
-	return s.ContainsAll(items)
+	return equalSlice(s, items)
 }
 
 // MarshalJSON implements the json.Marshaler interface.

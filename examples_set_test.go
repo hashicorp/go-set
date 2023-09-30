@@ -99,17 +99,6 @@ func ExampleSet_Contains() {
 	// false
 }
 
-func ExampleSet_ContainsAll() {
-	s := From([]string{"red", "green", "blue"})
-
-	fmt.Println(s.ContainsAll([]string{"red", "blue"}))
-	fmt.Println(s.ContainsAll([]string{"red", "orange"}))
-
-	// Output:
-	// true
-	// false
-}
-
 func ExampleSet_ContainsSlice() {
 	s := From([]string{"red", "green", "blue"})
 

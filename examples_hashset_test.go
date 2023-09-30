@@ -158,21 +158,6 @@ func ExampleHashSet_Contains() {
 	// false
 }
 
-func ExampleHashSet_ContainsAll() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
-	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
-
-	fmt.Println(s.ContainsAll([]*person{anna, bill}))
-	fmt.Println(s.ContainsAll([]*person{anna, dave}))
-
-	// Output:
-	// true
-	// false
-}
-
 func ExampleHashSet_ContainsSlice() {
 	anna := &person{name: "anna", id: 94}
 	bill := &person{name: "bill", id: 50}
