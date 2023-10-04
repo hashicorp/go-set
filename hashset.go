@@ -282,11 +282,34 @@ func (s *HashSet[T, H]) EqualSet(col Collection[T]) bool {
 
 // EqualSlice returns whether s and items contain the same elements.
 //
-// If items contains duplicates EqualSlice will return false; it is
-// assumed that items is itself set-like. For comparing equality with
-// a slice that may contain duplicates, use ContainsSlice.
+// The items slice may contain duplicates.
+//
+// If the items slice is known to contain no duplicates, EqualSliceSet can be
+// used instead as a faster implementation.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
 func (s *HashSet[T, H]) EqualSlice(items []T) bool {
-	return equalSlice(s, items)
+	other := HashSetFromFunc[T, H](items, s.fn)
+	return s.Equal(other)
+}
+
+// EqualSliceSet returns whether s and items contain exactly the same elements.
+//
+// If items contains duplicates EqualSliceSet will return false. The elements of
+// items are assumed to be set-like. For comparing s to a slice that may contain
+// duplicate elements, use EqualSlice instead.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
+func (s *HashSet[T, H]) EqualSliceSet(items []T) bool {
+	if len(items) != s.Size() {
+		return false
+	}
+	for _, item := range items {
+		if !s.Contains(item) {
+			return false
+		}
+	}
+	return true
 }
 
 // MarshalJSON implements the json.Marshaler interface.
@@ -299,8 +322,9 @@ func (s *HashSet[T, H]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
 
-// ForEach iterates the set calling visit for each element. If visit returns
-// false the iteration is halted.
+// ForEach iterates every element in s, apply the given visit function.
+//
+// If the visit returns false at any point, iteration is halted.
 func (s *HashSet[T, H]) ForEach(visit func(T) bool) {
 	for _, item := range s.items {
 		if !visit(item) {

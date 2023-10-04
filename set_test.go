@@ -180,7 +180,7 @@ func TestSet_ContainsSlice(t *testing.T) {
 	t.Run("some empty", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3})
 		b := make([]int, 0)
-		must.False(t, a.ContainsSlice(b))
+		must.True(t, a.ContainsSlice(b))
 	})
 
 	t.Run("equal", func(t *testing.T) {
@@ -198,7 +198,7 @@ func TestSet_ContainsSlice(t *testing.T) {
 	t.Run("subset", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4, 5})
 		b := []int{2, 3, 4}
-		must.False(t, a.ContainsSlice(b))
+		must.True(t, a.ContainsSlice(b))
 	})
 
 	t.Run("superset", func(t *testing.T) {
@@ -632,7 +632,57 @@ func TestSet_EqualSlice(t *testing.T) {
 	t.Run("duplicates", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3, 4, 5})
 		b := []int{1, 2, 2, 3, 3, 4, 5}
-		must.False(t, a.EqualSlice(b))
+		must.True(t, a.EqualSlice(b))
+	})
+}
+
+func TestSet_EqualSliceSet(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := New[int](0)
+		b := make([]int, 0)
+		must.True(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := New[int](0)
+		b := []int{1, 2, 3}
+		must.False(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("some empty", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := make([]int, 0)
+		must.False(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("equal", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := []int{3, 2, 1}
+		must.True(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("not equal", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := []int{2, 3, 4}
+		must.False(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("subset", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3, 4, 5})
+		b := []int{2, 3, 4}
+		must.False(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("superset", func(t *testing.T) {
+		a := From[int]([]int{2, 3, 4})
+		b := []int{1, 2, 3, 4, 5}
+		must.False(t, a.EqualSliceSet(b))
+	})
+
+	t.Run("duplicates", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3, 4, 5})
+		b := []int{1, 2, 2, 3, 3, 4, 5}
+		must.False(t, a.EqualSliceSet(b))
 	})
 }
 

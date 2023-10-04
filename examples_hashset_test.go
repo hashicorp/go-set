@@ -288,6 +288,42 @@ func ExampleHashSet_Equal() {
 	// false
 }
 
+func ExampleHashSet_EqualSlice() {
+	anna := &person{name: "anna", id: 94}
+	bill := &person{name: "bill", id: 50}
+	carl := &person{name: "carl", id: 10}
+	dave := &person{name: "dave", id: 32}
+
+	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
+
+	fmt.Println(s.EqualSlice([]*person{bill, anna, carl}))
+	fmt.Println(s.EqualSlice([]*person{anna, anna, bill, carl}))
+	fmt.Println(s.EqualSlice([]*person{dave, bill, carl}))
+
+	// Output:
+	// true
+	// true
+	// false
+}
+
+func ExampleHashSet_EqualSliceSet() {
+	anna := &person{name: "anna", id: 94}
+	bill := &person{name: "bill", id: 50}
+	carl := &person{name: "carl", id: 10}
+	dave := &person{name: "dave", id: 32}
+
+	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
+
+	fmt.Println(s.EqualSliceSet([]*person{bill, anna, carl}))
+	fmt.Println(s.EqualSliceSet([]*person{anna, anna, bill, carl}))
+	fmt.Println(s.EqualSliceSet([]*person{dave, bill, carl}))
+
+	// Output:
+	// true
+	// false
+	// false
+}
+
 func ExampleHashSet_Copy() {
 	anna := &person{name: "anna", id: 94}
 	bill := &person{name: "bill", id: 50}
