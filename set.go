@@ -139,14 +139,9 @@ func (s *Set[T]) Contains(item T) bool {
 	return exists
 }
 
-// ContainsSlice returns whether s contains the same set of of elements
-// that are in items. The elements of items may contain duplicates.
-//
-// If the slice is known to be set-like (no duplicates), EqualSlice provides
-// a more efficient implementation.
+// ContainsSlice returns whether all elements in items are present in s.
 func (s *Set[T]) ContainsSlice(items []T) bool {
-	// TODO optimize
-	return s.Equal(From(items))
+	return containsSlice(s, items)
 }
 
 // Subset returns whether col is a subset of s.
@@ -239,7 +234,7 @@ func (s *Set[T]) StringFunc(f func(element T) string) string {
 
 // Equal returns whether s and o contain the same elements.
 func (s *Set[T]) Equal(o *Set[T]) bool {
-	if len(s.items) != o.Size() {
+	if len(s.items) != len(o.items) {
 		return false
 	}
 	for item := range s.items {
@@ -257,11 +252,34 @@ func (s *Set[T]) EqualSet(col Collection[T]) bool {
 
 // EqualSlice returns whether s and items contain the same elements.
 //
-// If items contains duplicates EqualSlice will return false; it is
-// assumed that items is itself set-like. For comparing equality with
-// a slice that may contain duplicates, use ContainsSlice.
+// The items slice may contain duplicates.
+//
+// If the items slice is known to contain no duplicates, EqualSliceSet may be
+// used instead as a faster implementation.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
 func (s *Set[T]) EqualSlice(items []T) bool {
-	return equalSlice(s, items)
+	other := From[T](items)
+	return s.Equal(other)
+}
+
+// EqualSliceSet returns whether s and items contain exactly the same elements.
+//
+// If items contains duplicates EqualSliceSet will return false. The elements of
+// items are assumed to be set-like. For comparing s to a slice that may contain
+// duplicate elements, use EqualSlice instead.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
+func (s *Set[T]) EqualSliceSet(items []T) bool {
+	if len(items) != s.Size() {
+		return false
+	}
+	for _, item := range items {
+		if !s.Contains(item) {
+			return false
+		}
+	}
+	return true
 }
 
 // MarshalJSON implements the json.Marshaler interface.
@@ -274,6 +292,9 @@ func (s *Set[T]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
 
+// ForEach iterates every element in s, applying the given visit function.
+//
+// If the visit returns false at any point, iteration is halted.
 func (s *Set[T]) ForEach(visit func(T) bool) {
 	for item := range s.items {
 		if !visit(item) {

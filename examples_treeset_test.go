@@ -283,6 +283,32 @@ func ExampleTreeSet_Equal() {
 	// false
 }
 
+func ExampleTreeSet_EqualSlice() {
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
+
+	fmt.Println(t.EqualSlice([]int{1, 2, 3, 4, 5}))
+	fmt.Println(t.EqualSlice([]int{1, 1, 2, 3, 4, 5}))
+	fmt.Println(t.EqualSlice([]int{0, 2, 3, 4, 5}))
+
+	// Output:
+	// true
+	// true
+	// false
+}
+
+func ExampleTreeSet_EqualSliceSet() {
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
+
+	fmt.Println(t.EqualSliceSet([]int{1, 2, 3, 4, 5}))
+	fmt.Println(t.EqualSliceSet([]int{1, 1, 2, 3, 4, 5}))
+	fmt.Println(t.EqualSliceSet([]int{0, 2, 3, 4, 5}))
+
+	// Output:
+	// true
+	// false
+	// false
+}
+
 func ExampleTreeSet_Copy() {
 	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
 	c := s.Copy()
