@@ -600,7 +600,7 @@ func TestHashSet_EqualSlice(t *testing.T) {
 	t.Run("duplicates", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
 		b := []*company{c1, c2, c2, c3, c3, c4, c5}
-		must.False(t, a.EqualSlice(b))
+		must.True(t, a.EqualSlice(b))
 	})
 }
 

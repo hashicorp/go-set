@@ -307,18 +307,9 @@ func (s *TreeSet[T]) Contains(item T) bool {
 	return s.locate(s.root, item) != nil
 }
 
-// ContainsSlice returns whether s contains the same set of elements that are in
-// items. The items slice may contain duplicate elements.
-//
-// If the items slice is known to be set-like (no duplicates), EqualSlice provides
-// a more efficient implementation.
+// ContainsSlice returns whether all elements in items are present in s.
 func (s *TreeSet[T]) ContainsSlice(items []T) bool {
-	for _, item := range items {
-		if !s.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return containsSlice(s, items)
 }
 
 // Size returns the number of elements in s.
@@ -483,11 +474,31 @@ func (s *TreeSet[T]) EqualSet(col Collection[T]) bool {
 }
 
 // EqualSlice returns whether s and items contain the same elements.
+//
+// The items slice may contain duplicates.
+//
+// If the items slice is known to contain no duplicates, EqualSliceSet may be
+// used instead as a faster implementation.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
 func (s *TreeSet[T]) EqualSlice(items []T) bool {
+	other := TreeSetFrom[T](items, s.comparison)
+	return s.Equal(other)
+}
+
+// EqualSliceSet returns whether s and items contain exactly the same elements.
+//
+// If items contains duplicates EqualSliceSet will return false. The elements of
+// items are assumed to be set-like. For comparing s to a slice that may contain
+// duplicate elements, use EqualSlice instead.
+//
+// To detect if a slice is a subset of s, use ContainsSlice.
+func (s *TreeSet[T]) EqualSliceSet(items []T) bool {
+	// TODO optimize
 	if s.Size() != len(items) {
 		return false
 	}
-	return s.ContainsSlice(items)
+	return s.EqualSlice(items)
 }
 
 // String creates a string representation of s, using "%v" printf formatting
@@ -509,6 +520,9 @@ func (s *TreeSet[T]) StringFunc(f func(element T) string) string {
 	return fmt.Sprintf("%s", l)
 }
 
+// ForEach iterates every element in s, applying the given visit function.
+//
+// If the visit function returns false at any point, iteration is halted.
 func (s *TreeSet[T]) ForEach(visit func(T) bool) {
 	s.infix(func(n *node[T]) (next bool) {
 		return visit(n.element)

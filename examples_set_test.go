@@ -107,7 +107,7 @@ func ExampleSet_ContainsSlice() {
 	fmt.Println(s.ContainsSlice([]string{"red", "blue", "green"}))
 
 	// Output:
-	// false
+	// true
 	// false
 	// true
 }
@@ -199,6 +199,32 @@ func ExampleSet_Equal() {
 	// false
 	// false
 	// true
+}
+
+func ExampleSet_EqualSlice() {
+	s := From([]string{"red", "green", "blue"})
+
+	fmt.Println(s.EqualSlice([]string{"red", "blue", "green"}))
+	fmt.Println(s.EqualSlice([]string{"red", "red", "blue", "green"}))
+	fmt.Println(s.EqualSlice([]string{"yellow", "blue", "green"}))
+
+	// Output:
+	// true
+	// true
+	// false
+}
+
+func ExampleSet_EqualSliceSet() {
+	s := From([]string{"red", "green", "blue"})
+
+	fmt.Println(s.EqualSliceSet([]string{"red", "blue", "green"}))
+	fmt.Println(s.EqualSliceSet([]string{"red", "red", "blue", "green"}))
+	fmt.Println(s.EqualSliceSet([]string{"yellow", "blue", "green"}))
+
+	// Output:
+	// true
+	// false
+	// false
 }
 
 func ExampleSet_Copy() {

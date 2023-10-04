@@ -58,10 +58,6 @@ type Collection[T any] interface {
 	// ProperSubset returns whether the given Collection is a proper subset of the set.
 	ProperSubset(Collection[T]) bool
 
-	// TODO Superset(Collection[T])
-
-	// TODO ProperSuperset(Collection[T])
-
 	// Size returns the number of elements in the set.
 	Size() int
 
@@ -106,9 +102,13 @@ type Collection[T any] interface {
 	// elements.
 	EqualSet(Collection[T]) bool
 
-	// EqualSlice returns whether this set and a given set contain exactly the
-	// same elements.
+	// EqualSlice returns whether this set and a given slice contain the same
+	// elements, where the slice may contain duplicates.
 	EqualSlice([]T) bool
+
+	// EqualSliceSet returns whether this set and a given slice contain exactly
+	// the same elements, where the slice must not contain duplicates.
+	EqualSliceSet([]T) bool
 
 	// ForEach will call the callback function for each element in the set.
 	// If the callback returns false, the iteration will stop.
@@ -180,10 +180,7 @@ func intersect[T any](destination, a, b Collection[T]) {
 	})
 }
 
-func equalSlice[T any](col Collection[T], items []T) bool {
-	if len(items) != col.Size() {
-		return false
-	}
+func containsSlice[T any](col Collection[T], items []T) bool {
 	for _, item := range items {
 		if !col.Contains(item) {
 			return false
