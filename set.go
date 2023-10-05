@@ -20,8 +20,9 @@ var sentinel = nothing{}
 // A Set will automatically grow or shrink its capacity as items are added or
 // removed.
 //
-// T must *not* be of pointer type, nor contain pointer fields, which are comparable
-// but not in the way you expect. For these types, use HashSet instead.
+// T may be any comparable type. Keep in mind that pointer types or structs
+// containing pointer fields will be compared using shallow equality. For deep
+// equality use HashSet instead.
 func New[T comparable](size int) *Set[T] {
 	return &Set[T]{
 		items: make(map[T]nothing, max(0, size)),
@@ -30,8 +31,9 @@ func New[T comparable](size int) *Set[T] {
 
 // From creates a new Set containing each item in items.
 //
-// T must *not* be of pointer type, nor contain pointer fields, which are comparable
-// but not in the way you expect. For these types, use HashSet instead.
+// T may be any comparable type. Keep in mind that pointer types or structs
+// containing pointer fields will be compared using shallow equality. For deep
+// equality use HashSet instead.
 func From[T comparable](items []T) *Set[T] {
 	s := New[T](len(items))
 	s.InsertSlice(items)
@@ -40,8 +42,9 @@ func From[T comparable](items []T) *Set[T] {
 
 // FromFunc creates a new Set containing a conversion of each item in items.
 //
-// T must *not* be of pointer type, nor contain pointer fields, which are comparable
-// but not in the way you expect. For these types, use HashSet instead.
+// T may be any comparable type. Keep in mind that pointer types or structs
+// containing pointer fields will be compared using shallow equality. For deep
+// equality use HashSet instead.
 func FromFunc[A any, T comparable](items []A, conversion func(A) T) *Set[T] {
 	s := New[T](len(items))
 	for _, item := range items {
