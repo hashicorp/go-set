@@ -58,10 +58,13 @@ list := set.From[string](items).Slice()
 # Set
 
 The `go-set` package includes `Set` for types that satisfy the `comparable` constraint.
-Note that complex structs (i.e. is a pointer or contains pointer fields) will not be
-"comparable" in the sense of deep equality, but rather in the sense of pointer addresses.
-The `Set` type should be used with builtin types like `string`, `int`, or simple struct
-types with no pointers.
+Uniqueness of a set elements is guaranteed via shallow comparison (result of == operator).
+
+Note: if pointers or structs with pointer fields are stored in the `Set`, they will
+be compared in the sense of pointer addresses, not in the sense of referenced values.
+Due to this fact the `Set` type is recommended to be used with builtin types like
+`string`, `int`, or simple struct types with no pointers. `Set` usage with pointers or 
+structs with pointer is also possible if shallow equality is acceptable.
 
 # HashSet
 
