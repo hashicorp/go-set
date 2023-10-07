@@ -476,6 +476,80 @@ func TestHashSet_Intersect(t *testing.T) {
 	})
 }
 
+type special struct {
+	hash    string
+	version int // not part of the hash
+}
+
+func (s *special) Hash() string {
+	return s.hash
+}
+
+func TestHashSet_Union(t *testing.T) {
+	t.Run("empty ∪ empty", func(t *testing.T) {
+		a := NewHashSet[*company, string](10)
+		b := NewHashSet[*company, string](10)
+		union := a.Union(b).(*HashSet[*company, string])
+		must.MapEmpty(t, union.items)
+	})
+
+	t.Run("set ∪ empty", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := NewHashSet[*company, string](10)
+		union := a.Union(b).(*HashSet[*company, string])
+		must.MapContainsKeys(t, union.items, []string{
+			"street:1", "street:2", "street:3",
+		})
+	})
+
+	t.Run("empty ∪ set", func(t *testing.T) {
+		a := NewHashSet[*company, string](10)
+		b := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		union := a.Union(b).(*HashSet[*company, string])
+		must.MapContainsKeys(t, union.items, []string{
+			"street:1", "street:2", "street:3",
+		})
+	})
+
+	t.Run("big ∪ small", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c4, c5, c6, c7})
+		b := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		union := a.Union(b).(*HashSet[*company, string])
+		must.MapContainsKeys(t, union.items, []string{
+			"street:1", "street:2", "street:3", "street:4", "street:5", "street:6", "street:7",
+		})
+	})
+
+	t.Run("overlap", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c4, c5, c6, c7})
+		b := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
+		union := a.Union(b).(*HashSet[*company, string])
+		must.MapContainsKeys(t, union.items, []string{
+			"street:1", "street:2", "street:3", "street:4", "street:5", "street:6", "street:7",
+		})
+	})
+
+	t.Run("overlap priority", func(t *testing.T) {
+		x1 := &special{hash: "x", version: 1}
+		x2 := &special{hash: "x", version: 2}
+
+		a := HashSetFrom[*special, string]([]*special{x1})
+		b := HashSetFrom[*special, string]([]*special{x2})
+
+		// receiver elements take priority over argument elements
+		union1 := a.Union(b).(*HashSet[*special, string])
+		must.MapContainsValues(t, union1.items, []*special{
+			x1,
+		})
+
+		// checking in the other direction
+		union2 := b.Union(a).(*HashSet[*special, string])
+		must.MapContainsValues(t, union2.items, []*special{
+			x2,
+		})
+	})
+}
+
 func TestHashSet_Copy(t *testing.T) {
 	t.Run("copy empty", func(t *testing.T) {
 		a := NewHashSet[*company, string](0)

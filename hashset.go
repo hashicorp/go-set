@@ -196,6 +196,8 @@ func (s *HashSet[T, H]) Empty() bool {
 }
 
 // Union returns a set that contains all elements of s and col combined.
+//
+// Elements in s take priority in the event of colliding hash values.
 func (s *HashSet[T, H]) Union(col Collection[T]) Collection[T] {
 	result := NewHashSetFunc[T, H](s.Size(), s.fn)
 	insert(result, s)
