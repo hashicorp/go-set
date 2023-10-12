@@ -27,7 +27,17 @@ This package is not thread-safe.
 
 # Documentation
 
-The full documentation is available on [pkg.go.dev](https://pkg.go.dev/github.com/hashicorp/go-set).
+The full `go-set` package reference is available on [pkg.go.dev](https://pkg.go.dev/github.com/hashicorp/go-set).
+
+# Install
+
+```shell
+go get github.com/hashicorp/go-set/v2@latest
+```
+
+```shell
+import "github.com/hashicorp/go-set/v2"
+```
 
 # Motivation
 
@@ -78,63 +88,31 @@ implement an efficient hash function using a hash code based on prime multiples.
 
 The `go-set` package includes `TreeSet` for creating sorted sets. A `TreeSet` may
 be used with any type `T` as the comparison between elements is provided by implementing
-`Compare[T]`. The `Cmp[builtin]` helper provides a convenient implementation of
-`Compare` for `builtin` types like `string` or `int`. A `TreeSet` is backed by
+`CompareFunc[T]`. The `Compare[GoType]` helper provides a convenient implementation of
+`CompareFunc` for `builtin` types like `string` or `int`. A `TreeSet` is backed by
 an underlying balanced binary search tree, making operations like in-order traversal
 efficient, in addition to enabling functions like `Min()`, `Max()`, `TopK()`, and
 `BottomK()`.
 
+# Collection[T]
 
-### Methods
+The `Collection[T]` interface is implemented by each of `Set`, `HashSet`, and `TreeSet`.
 
-Implements the following set operations
+It serves as a useful abstraction over the common methods implemented by each set type.
 
-- Insert
-- InsertSlice
-- InsertSet
-- Remove
-- RemoveSlice
-- RemoveSet
-- RemoveFunc
-- Contains
-- ContainsAll
-- ContainsSlice
-- Subset
-- Size
-- Empty
-- Union
-- Difference
-- Intersect
+### Iteration
 
-Provides helper methods
+Go still has no support for using `range` over user defined types. Until that becomes
+possible, each of `Set`, `HashSet`, and `TreeSet` implements a `ForEach` method for
+iterating each element in a set. The argument is a function that accepts an item from
+the set and returns a boolean, indicating whether iteration should be halted.
 
-- Equal
-- Copy
-- Slice
-- String
-
-TreeSet helper methods
-- Min
-- Max
-- TopK
-- BottomK
-- FirstAbove
-- FirstAboveEqual
-- Above
-- AboveEqual
-- FirstBelow
-- FirstBelowEqual
-- Below
-- BelowEqual
-
-# Install
-
-```
-go get github.com/hashicorp/go-set@latest
-```
-
-```
-import "github.com/hashicorp/go-set"
+```go
+// e.g. print each item in the set
+s.ForEach(func(item T) bool {
+  fmt.Println(item)
+  return true
+})
 ```
 
 # Set Examples
@@ -204,14 +182,14 @@ s.Insert(e1)
 
 Below are simple example usages of `TreeSet`
 
-(using `Cmp` as `Compare`)
+(using the `Compare` helper to compare a built in `GoType`)
 
 ```go
-ts := NewTreeSet[int, Compare[int]](Cmp[int])
+ts := NewTreeSet[int](Compare[int])
 ts.Insert(5)
 ```
 
-(using custom `Compare`)
+(using a custom `CompareFunc`)
 
 ```go
 type waypoint struct {
@@ -223,7 +201,7 @@ cmp := func(w1, w2 *waypoint) int {
     return w1.distance - w2.distance
 }
 
-ts := NewTreeSet[*waypoint, Compare[*waypoint]](cmp)
+ts := NewTreeSet[*waypoint](cmp)
 ts.Insert(&waypoint{distance: 42, name: "tango"})
 ts.Insert(&waypoint{distance: 13, name: "alpha"})
 ts.Insert(&waypoint{distance: 71, name: "xray"})
