@@ -7,23 +7,34 @@
 The `go-set` repository provides a `set` package containing a few
 generic [Set](https://en.wikipedia.org/wiki/Set) implementations for Go.
 
+---
+
+**PSA** October 2023 - The v2 version of this package has been published, starting at
+tag version `v2.0.0`. A description of the changes including backwards incompatibilities
+can be found in https://github.com/hashicorp/go-set/issues/73
+
+---
+
 Each implementation is optimal for a particular use case.
 
-`Set` is ideal for `comparable` types.
+**Set[T]** is ideal for `comparable` types.
   - backed by `map` builtin
   - commonly used with `string`, `int`, simple `struct` types, etc.
 
-`HashSet` is useful for types that implement a `Hash()` function.
+**HashSet[T]** is useful for types that implement a `Hash()` function.
   - backed by `map` builtin
   - commonly used with complex structs
+  - also works with custom `HashFunc[T]` implementations
 
-`TreeSet` is useful for comparable data (via `Compare[T]`)
+**TreeSet[T]** is useful for comparable data (via `CompareFunc[T]`)
   - backed by Red-Black Binary Search Tree
   - commonly used with complex structs with extrinsic order
   - efficient iteration in sort order
   - additional methods `Min` / `Max` / `TopK` / `BottomK`
 
 This package is not thread-safe.
+
+---
 
 # Documentation
 
