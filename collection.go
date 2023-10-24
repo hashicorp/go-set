@@ -201,7 +201,7 @@ func equalSet[T any](a, b Collection[T]) bool {
 		}
 		return true
 	})
-	return missing
+	return !missing
 }
 
 func removeSet[T any](s, col Collection[T]) bool {
