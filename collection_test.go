@@ -221,3 +221,26 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 	})
 }
+
+func TestEqualSet(t *testing.T) {
+	t.Run("equal ok", func(t *testing.T) {
+		a := From(ints(3))
+		b := From(ints(3))
+		must.True(t, a.EqualSet(b))
+	})
+	t.Run("none equal none", func(t *testing.T) {
+		a := New[int](0)
+		b := New[int](0)
+		must.True(t, a.EqualSet(b))
+	})
+	t.Run("size not equal", func(t *testing.T) {
+		a := From(ints(3))
+		b := From(ints(4))
+		must.False(t, a.EqualSet(b))
+	})
+	t.Run("items not equal", func(t *testing.T) {
+		a := From(ints(3))
+		b := From([]int{1, 2, 4})
+		must.False(t, a.EqualSet(b))
+	})
+}
