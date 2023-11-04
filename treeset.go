@@ -332,18 +332,6 @@ func (s *TreeSet[T]) Slice() []T {
 	return result
 }
 
-// FilterSlice returns the elements of s that satisfy the predicate f.
-func (s *TreeSet[T]) FilterSlice(filter func(T) bool) []T {
-	result := make([]T, 0, s.Size())
-	s.ForEach(func(t T) bool {
-		if filter != nil && filter(t) {
-			result = append(result, t)
-		}
-		return true
-	})
-	return result
-}
-
 // Subset returns whether col is a subset of s.
 func (s *TreeSet[T]) Subset(col Collection[T]) bool {
 	// try the fast paths
