@@ -190,9 +190,15 @@ func containsSlice[T any](col Collection[T], items []T) bool {
 }
 
 func equalSet[T any](a, b Collection[T]) bool {
-	if a.Size() != b.Size() {
+	// fast paths: sets are empty or different sizes
+	sizeA, sizeB := a.Size(), b.Size()
+	if sizeA == 0 && sizeB == 0 {
+		return true
+	}
+	if sizeA != sizeB {
 		return false
 	}
+
 	missing := false
 	a.ForEach(func(item T) bool {
 		if !b.Contains(item) {

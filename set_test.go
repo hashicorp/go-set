@@ -587,6 +587,62 @@ func TestSet_Subset(t *testing.T) {
 	})
 }
 
+func TestSet_ProperSubset(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := New[int](0)
+		b := New[int](0)
+		must.True(t, a.Subset(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := New[int](0)
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.ProperSubset(b))
+	})
+
+	t.Run("some empty", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := New[int](0)
+		must.True(t, a.ProperSubset(b))
+	})
+
+	t.Run("equal", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.ProperSubset(b))
+		must.False(t, b.ProperSubset(a))
+	})
+
+	t.Run("proper subset", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{1, 2})
+		must.True(t, a.ProperSubset(b))
+		must.False(t, b.ProperSubset(a))
+	})
+}
+
+func TestSet_EqualSet(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := New[int](0)
+		b := New[int](0)
+		must.True(t, a.EqualSet(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := New[int](0)
+		b := From[int]([]int{1, 2, 3})
+		must.False(t, a.EqualSet(b))
+		must.False(t, b.EqualSet(a))
+	})
+
+	t.Run("some some", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{3, 2, 1})
+		must.False(t, a.EqualSet(b))
+		must.False(t, b.EqualSet(a))
+	})
+}
+
 func TestSet_EqualSlice(t *testing.T) {
 	t.Run("empty empty", func(t *testing.T) {
 		a := New[int](0)
