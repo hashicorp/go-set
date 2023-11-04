@@ -328,6 +328,57 @@ func TestTreeSet_Subset(t *testing.T) {
 	})
 }
 
+func TestTreeSet_ProperSubset(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		t1 := NewTreeSet[int](Compare[int])
+		t2 := NewTreeSet[int](Compare[int])
+		must.False(t, t1.ProperSubset(t2))
+	})
+
+	t.Run("empty full", func(t *testing.T) {
+		t1 := NewTreeSet[int](Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.False(t, t1.ProperSubset(t2))
+	})
+
+	t.Run("full empty", func(t *testing.T) {
+		t1 := NewTreeSet[int](Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.True(t, t2.ProperSubset(t1))
+	})
+
+	t.Run("same", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{2, 1, 3}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.False(t, t1.ProperSubset(t2))
+		must.False(t, t2.ProperSubset(t1))
+	})
+
+	t.Run("subset", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{2, 1, 3}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{5, 4, 1, 2, 3}, Compare[int])
+		must.False(t, t1.ProperSubset(t2))
+	})
+
+	t.Run("superset", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{9, 7, 8, 5, 4, 2, 1, 3}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{5, 1, 2, 8, 3}, Compare[int])
+		must.True(t, t1.ProperSubset(t2))
+	})
+
+	t.Run("diff set", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{6, 7, 8, 9, 10}, Compare[int])
+		must.False(t, t1.ProperSubset(t2))
+	})
+
+	t.Run("exhaust", func(t *testing.T) {
+		s1 := TreeSetFrom[string]([]string{"a", "b", "c", "d", "e"}, Compare[string])
+		s2 := TreeSetFrom[string]([]string{"a", "z"}, Compare[string])
+		must.False(t, s1.ProperSubset(s2))
+	})
+}
+
 func TestTreeSet_Union(t *testing.T) {
 	t.Run("empty empty", func(t *testing.T) {
 		t1 := TreeSetFrom[int](nil, Compare[int])
@@ -520,6 +571,35 @@ func TestTreeSet_Equal(t *testing.T) {
 		t1 := TreeSetFrom[int]([]int{1, 2, 3, 5, 6}, Compare[int])
 		t2 := TreeSetFrom[int]([]int{1, 2, 4, 5, 6}, Compare[int])
 		must.NotEqual(t, t1, t2)
+	})
+}
+
+func TestTreeSet_EqualSet(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		t1 := TreeSetFrom[int](nil, Compare[int])
+		t2 := TreeSetFrom[int](nil, Compare[int])
+		must.True(t, t1.EqualSet(t2))
+	})
+
+	t.Run("empty full", func(t *testing.T) {
+		t1 := TreeSetFrom[int](nil, Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.False(t, t1.EqualSet(t2))
+		must.False(t, t2.EqualSet(t1))
+	})
+
+	t.Run("different", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{1, 2, 4}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.False(t, t1.EqualSet(t2))
+		must.False(t, t2.EqualSet(t1))
+	})
+
+	t.Run("same", func(t *testing.T) {
+		t1 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		t2 := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		must.True(t, t1.EqualSet(t2))
+		must.True(t, t2.EqualSet(t1))
 	})
 }
 
