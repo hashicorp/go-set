@@ -373,6 +373,44 @@ func TestHashSet_Subset(t *testing.T) {
 	})
 }
 
+func TestHashSet_ProperSubset(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := NewHashSet[*company, string](0)
+		b := NewHashSet[*company, string](0)
+		must.False(t, a.ProperSubset(b))
+	})
+
+	t.Run("empty some", func(t *testing.T) {
+		a := NewHashSet[*company, string](0)
+		b := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		must.False(t, a.ProperSubset(b))
+	})
+
+	t.Run("some empty", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := NewHashSet[*company, string](0)
+		must.True(t, a.ProperSubset(b))
+	})
+
+	t.Run("equal", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := HashSetFrom[*company, string]([]*company{c2, c3, c1})
+		must.False(t, a.ProperSubset(b))
+	})
+
+	t.Run("subset", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := HashSetFrom[*company, string]([]*company{c3, c1})
+		must.True(t, a.ProperSubset(b))
+	})
+
+	t.Run("superset", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := HashSetFrom[*company, string]([]*company{c3, c1, c2, c4})
+		must.False(t, a.ProperSubset(b))
+	})
+}
+
 func TestHashSet_Size(t *testing.T) {
 	t.Run("size empty", func(t *testing.T) {
 		s := NewHashSet[*company, string](10)
@@ -590,22 +628,6 @@ func TestHashSet_Slice(t *testing.T) {
 	})
 }
 
-func TestHashSet_List(t *testing.T) {
-	t.Run("list empty", func(t *testing.T) {
-		a := NewHashSet[*company, string](10)
-		l := a.Slice()
-		must.SliceEmpty(t, l)
-	})
-
-	t.Run("list set", func(t *testing.T) {
-		a := HashSetFrom[*company, string]([]*company{c1, c2})
-		l := a.Slice()
-		must.Len(t, 2, l)
-		must.SliceContainsEqual(t, l, c1)
-		must.SliceContainsEqual(t, l, c2)
-	})
-}
-
 func TestHashSet_String(t *testing.T) {
 	a := HashSetFrom[*company, string]([]*company{c2, c1})
 	result := a.String()
@@ -625,6 +647,21 @@ func TestHashSet_StringFunc(t *testing.T) {
 			return fmt.Sprintf("(%s %d)", c.address, c.floor)
 		})
 		must.Eq(t, "[(street 1) (street 2)]", s)
+	})
+}
+
+func TestHashSet_EqualSet(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		a := NewHashSet[*company, string](0)
+		b := NewHashSet[*company, string](0)
+		must.True(t, a.EqualSet(b))
+	})
+
+	t.Run("different", func(t *testing.T) {
+		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
+		b := HashSetFrom[*company, string]([]*company{c1, c2, c4})
+		must.False(t, a.EqualSet(b))
+		must.False(t, b.EqualSet(a))
 	})
 }
 

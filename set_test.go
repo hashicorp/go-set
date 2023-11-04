@@ -635,9 +635,16 @@ func TestSet_EqualSet(t *testing.T) {
 		must.False(t, b.EqualSet(a))
 	})
 
-	t.Run("some some", func(t *testing.T) {
+	t.Run("same", func(t *testing.T) {
 		a := From[int]([]int{1, 2, 3})
 		b := From[int]([]int{3, 2, 1})
+		must.True(t, a.EqualSet(b))
+		must.True(t, b.EqualSet(a))
+	})
+
+	t.Run("different", func(t *testing.T) {
+		a := From[int]([]int{1, 2, 3})
+		b := From[int]([]int{1, 2, 4})
 		must.False(t, a.EqualSet(b))
 		must.False(t, b.EqualSet(a))
 	})

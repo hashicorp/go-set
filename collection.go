@@ -199,15 +199,16 @@ func equalSet[T any](a, b Collection[T]) bool {
 		return false
 	}
 
-	missing := false
+	// look for any missing element
+	different := false
 	a.ForEach(func(item T) bool {
 		if !b.Contains(item) {
-			missing = true
-			return false // stop iteration
+			different = true
+			return false // halt
 		}
-		return true
+		return true // continue
 	})
-	return !missing
+	return !different
 }
 
 func removeSet[T any](s, col Collection[T]) bool {
