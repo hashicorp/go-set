@@ -71,15 +71,6 @@ func (s *Set[T]) Insert(item T) bool {
 	return true
 }
 
-// InsertAll will insert each item in items into s.
-//
-// Return true if s was modified (at least one item was not already in s), false otherwise.
-//
-// Deprecated: use InsertSlice instead.
-func (s *Set[T]) InsertAll(items []T) bool {
-	return s.InsertSlice(items)
-}
-
 // InsertSlice will insert each item in items into s.
 //
 // Return true if s was modified (at least one item was not already in s), false otherwise.
@@ -115,15 +106,6 @@ func (s *Set[T]) Remove(item T) bool {
 	}
 	delete(s.items, item)
 	return true
-}
-
-// RemoveAll will remove each item in items from s.
-//
-// Return true if s was modified (any item was present), false otherwise.
-//
-// Deprecated: use RemoveSlice instead.
-func (s *Set[T]) RemoveAll(items []T) bool {
-	return s.RemoveSlice(items)
 }
 
 // RemoveSlice will remove each item in items from s.
@@ -271,13 +253,6 @@ func (s *Set[T]) Slice() []T {
 		result = append(result, item)
 	}
 	return result
-}
-
-// List creates a copy of s as a slice.
-//
-// Deprecated: use Slice() instead.
-func (s *Set[T]) List() []T {
-	return s.Slice()
 }
 
 // String creates a string representation of s, using "%v" printf formating to transform
