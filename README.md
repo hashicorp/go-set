@@ -9,8 +9,8 @@ generic [Set](https://en.wikipedia.org/wiki/Set) implementations for Go.
 
 ---
 
-**PSA** October 2023 - The v2 version of this package has been published, starting at
-tag version `v2.0.0`. A description of the changes including backwards incompatibilities
+**PSA** October 2023 - The **v2** version of this package has been published, starting at
+tag version `v2.1.0`. A description of the changes including backwards incompatibilities
 can be found in https://github.com/hashicorp/go-set/issues/73
 
 ---
