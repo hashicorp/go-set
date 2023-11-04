@@ -5,6 +5,7 @@ package set
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/shoenig/test/must"
@@ -696,5 +697,6 @@ func TestSet_ForEach(t *testing.T) {
 		return true
 	}
 	s.ForEach(evens)
+	sort.Ints(result)
 	must.Eq(t, []int{0, 2, 4, 6, 8}, result)
 }
