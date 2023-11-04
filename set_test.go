@@ -490,23 +490,6 @@ func TestSet_Slice(t *testing.T) {
 	})
 }
 
-func TestSet_List(t *testing.T) {
-	t.Run("list empty", func(t *testing.T) {
-		a := New[string](10)
-		l := a.Slice()
-		must.SliceEmpty(t, l)
-	})
-
-	t.Run("list set", func(t *testing.T) {
-		a := From([]string{"apple", "banana", "cherry"})
-		l := a.Slice()
-		must.Len(t, 3, l)
-		must.SliceContains(t, l, "apple")
-		must.SliceContains(t, l, "banana")
-		must.SliceContains(t, l, "cherry")
-	})
-}
-
 func TestSet_String(t *testing.T) {
 	t.Run("ints", func(t *testing.T) {
 		a := From([]int{1, 2, 3})
@@ -662,4 +645,17 @@ func TestSet_EqualSlice(t *testing.T) {
 		b := []int{1, 2, 2, 3, 3, 4, 5}
 		must.False(t, a.EqualSlice(b))
 	})
+}
+
+func TestSet_ForEach(t *testing.T) {
+	s := From[int]([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
+	var result []int
+	evens := func(i int) bool {
+		if i%2 == 0 {
+			result = append(result, i)
+		}
+		return true
+	}
+	s.ForEach(evens)
+	must.Eq(t, []int{0, 2, 4, 6, 8}, result)
 }
