@@ -11,6 +11,14 @@ on:
       - README.md
       - .gitignore
 jobs:
+  run-copywrite:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - uses: hashicorp/setup-copywrite@v1.1.2
+      - name: verify copyright
+        run: |
+          copywrite headers --plan
   run-lint:
     timeout-minutes: 10
     runs-on: ubuntu-22.04
