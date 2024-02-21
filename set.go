@@ -8,6 +8,7 @@ package set
 
 import (
 	"fmt"
+	"iter"
 	"sort"
 )
 
@@ -302,6 +303,20 @@ func (s *Set[T]) ForEach(visit func(T) bool) {
 	for item := range s.items {
 		if !visit(item) {
 			return
+		}
+	}
+}
+
+// Items returns a generator function for iterating each element in s by using
+// the range keyword.
+//
+//	for element := range s.Items() { ... }
+func (s *Set[T]) Items() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for item := range s.items {
+			if !yield(item) {
+				return
+			}
 		}
 	}
 }

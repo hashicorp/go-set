@@ -5,6 +5,7 @@ package set
 
 import (
 	"fmt"
+	"iter"
 )
 
 // CompareFunc represents a function that compares two elements.
@@ -1030,5 +1031,22 @@ func (s *TreeSet[T]) filterRight(n *node[T], accept func(element T) bool, result
 	if accept(n.element) {
 		result.Insert(n.element)
 		s.filterRight(n.left, accept, result)
+	}
+}
+
+// Items returns a generator function for iterating each element in s by using
+// the range keyword.
+//
+//	for i, element := range s.Items() { ... }
+func (s *TreeSet[T]) Items() iter.Seq2[int, T] {
+	return func(yield func(int, T) bool) {
+		iter := s.iterate()
+		n := iter()
+		for i := 0; n != nil; i++ {
+			if !yield(i, n.element) {
+				return
+			}
+			n = iter()
+		}
 	}
 }

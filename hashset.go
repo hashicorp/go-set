@@ -334,3 +334,17 @@ func (s *HashSet[T, H]) ForEach(visit func(T) bool) {
 		}
 	}
 }
+
+// Items returns a generator function for iterating each element in s by using
+// the range keyword.
+//
+//	for element := range s.Items() { ... }
+func (s *HashSet[T, H]) Items() func(func(T) bool) {
+	return func(yield func(T) bool) {
+		for _, item := range s.items {
+			if !yield(item) {
+				return
+			}
+		}
+	}
+}

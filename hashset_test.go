@@ -724,3 +724,17 @@ func TestHashSet_HashCode(t *testing.T) {
 	must.True(t, a.Contains(s2))
 	must.False(t, a.Contains(s3))
 }
+
+func TestHashSet_Items(t *testing.T) {
+	a := NewHashSet[*coded, int](0)
+	a.Insert(s1)
+	a.Insert(s2)
+	a.Insert(s3)
+
+	sum := 0
+	for element := range a.Items() {
+		sum += element.i
+	}
+
+	must.Eq(t, 6, sum)
+}

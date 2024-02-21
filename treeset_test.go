@@ -1011,3 +1011,19 @@ func TestTreeSet_iterate2(t *testing.T) {
 	}
 	must.Nil(t, iter())
 }
+
+func TestTreeSet_Items(t *testing.T) {
+	ts := TreeSetFrom[int]([]int{2, 1, 4, 3, 5}, Compare[int])
+
+	exp := []int{1, 2, 3, 4, 5}
+	idx := []int{0, 1, 2, 3, 4}
+	result := []int{}
+	idxs := []int{}
+	for i, element := range ts.Items() {
+		result = append(result, element)
+		idxs = append(idxs, i)
+	}
+
+	must.Eq(t, exp, result)
+	must.Eq(t, idx, idxs)
+}
