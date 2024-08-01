@@ -763,3 +763,14 @@ func TestSet_ForEach(t *testing.T) {
 	sort.Ints(result)
 	must.Eq(t, []int{0, 2, 4, 6, 8}, result)
 }
+
+func TestSet_Items(t *testing.T) {
+	s := From[int]([]int{1, 2, 3, 4, 5})
+
+	sum := 0
+	for element := range s.Items() {
+		sum += element
+	}
+
+	must.Eq(t, 15, sum)
+}
