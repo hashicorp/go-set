@@ -67,6 +67,9 @@ func (s *Set[T]) Insert(item T) bool {
 	if _, exists := s.items[item]; exists {
 		return false
 	}
+	if s.items == nil {
+		s.items = make(map[T]nothing)
+	}
 	s.items[item] = sentinel
 	return true
 }
