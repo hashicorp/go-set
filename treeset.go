@@ -17,6 +17,8 @@ type CompareFunc[T any] func(T, T) int
 
 // GoType represents a builtin type to Go. These types can be compared using
 // the CompareFunc[GoType] function.
+//
+// Deprecated: use the stdlib's [cmp.Ordered] instead.
 type GoType interface {
 	~string | ~int | ~uint | ~int64 | ~uint64 | ~int32 | ~uint32 | ~int16 | ~uint16 | ~int8 | ~uint8
 }
@@ -25,6 +27,8 @@ type GoType interface {
 // used for comparison of types built-in to Go.
 //
 // Common to use with string, int, uint, etc.
+//
+// Deprecated: use the stdlib's [cmp.Compare] instead.
 func Compare[T GoType](x, y T) int {
 	switch {
 	case x < y:
