@@ -4,29 +4,30 @@
 package set
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 )
 
 type person struct {
-	name string
-	id   int
+	Name string
+	ID   int
 }
 
 func (p *person) Hash() string {
-	return fmt.Sprintf("%s:%d", p.name, p.id)
+	return fmt.Sprintf("%s:%d", p.Name, p.ID)
 }
 
 func (p *person) String() string {
-	return p.name
+	return p.Name
 }
 
 func ExampleHashSet_Insert() {
 	s := NewHashSet[*person, string](10)
-	s.Insert(&person{name: "dave", id: 108})
-	s.Insert(&person{name: "armon", id: 101})
-	s.Insert(&person{name: "mitchell", id: 100})
-	s.Insert(&person{name: "armon", id: 101})
+	s.Insert(&person{Name: "dave", ID: 108})
+	s.Insert(&person{Name: "armon", ID: 101})
+	s.Insert(&person{Name: "mitchell", ID: 100})
+	s.Insert(&person{Name: "armon", ID: 101})
 
 	fmt.Println(s)
 
@@ -37,10 +38,10 @@ func ExampleHashSet_Insert() {
 func ExampleHashSet_InsertSlice() {
 	s := NewHashSet[*person, string](10)
 	s.InsertSlice([]*person{
-		{name: "dave", id: 108},
-		{name: "mitchell", id: 100},
-		{name: "dave", id: 108},
-		{name: "armon", id: 101},
+		{Name: "dave", ID: 108},
+		{Name: "mitchell", ID: 100},
+		{Name: "dave", ID: 108},
+		{Name: "armon", ID: 101},
 	})
 
 	fmt.Println(s)
@@ -50,10 +51,10 @@ func ExampleHashSet_InsertSlice() {
 }
 
 func ExampleHashSet_InsertSet() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s1 := HashSetFrom[*person, string]([]*person{anna, carl})
 	s2 := HashSetFrom[*person, string]([]*person{carl, dave, bill})
 	s2.InsertSet(s1)
@@ -67,10 +68,10 @@ func ExampleHashSet_InsertSet() {
 }
 
 func ExampleHashSet_Remove() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{anna, carl, dave, bill})
 
 	fmt.Println(s)
@@ -85,10 +86,10 @@ func ExampleHashSet_Remove() {
 }
 
 func ExampleHashSet_RemoveSlice() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{anna, carl, dave, bill})
 
 	fmt.Println(s)
@@ -103,10 +104,10 @@ func ExampleHashSet_RemoveSlice() {
 }
 
 func ExampleHashSet_RemoveSet() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{carl, dave, bill})
 	r := HashSetFrom[*person, string]([]*person{anna, carl})
 
@@ -122,14 +123,14 @@ func ExampleHashSet_RemoveSet() {
 }
 
 func ExampleHashSet_RemoveFunc() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl, dave})
 
 	idAbove50 := func(p *person) bool {
-		return p.id >= 50
+		return p.ID >= 50
 	}
 
 	fmt.Println(s)
@@ -144,10 +145,10 @@ func ExampleHashSet_RemoveFunc() {
 }
 
 func ExampleHashSet_Contains() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
 	fmt.Println(s.Contains(anna))
@@ -159,10 +160,10 @@ func ExampleHashSet_Contains() {
 }
 
 func ExampleHashSet_ContainsSlice() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
 	fmt.Println(s.ContainsSlice([]*person{anna, bill}))
@@ -176,10 +177,10 @@ func ExampleHashSet_ContainsSlice() {
 }
 
 func ExampleHashSet_Subset() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s1 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	s2 := HashSetFrom[*person, string]([]*person{anna, bill})
 	s3 := HashSetFrom[*person, string]([]*person{bill, carl, dave})
@@ -193,9 +194,9 @@ func ExampleHashSet_Subset() {
 }
 
 func ExampleHashSet_Size() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
 	fmt.Println(s.Size())
@@ -214,10 +215,10 @@ func ExampleHashSet_Empty() {
 }
 
 func ExampleHashSet_Union() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s1 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	s2 := HashSetFrom[*person, string]([]*person{anna, bill, dave})
 	union := s1.Union(s2)
@@ -233,10 +234,10 @@ func ExampleHashSet_Union() {
 }
 
 func ExampleHashSet_Difference() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s1 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	s2 := HashSetFrom[*person, string]([]*person{anna, bill, dave})
 	difference := s1.Difference(s2)
@@ -252,10 +253,10 @@ func ExampleHashSet_Difference() {
 }
 
 func ExampleHashSet_Intersect() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 	s1 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	s2 := HashSetFrom[*person, string]([]*person{anna, bill, dave})
 	intersect := s1.Intersect(s2)
@@ -271,10 +272,10 @@ func ExampleHashSet_Intersect() {
 }
 
 func ExampleHashSet_Equal() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 
 	s1 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	s2 := HashSetFrom[*person, string]([]*person{anna, bill, carl})
@@ -289,10 +290,10 @@ func ExampleHashSet_Equal() {
 }
 
 func ExampleHashSet_EqualSlice() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
@@ -307,10 +308,10 @@ func ExampleHashSet_EqualSlice() {
 }
 
 func ExampleHashSet_EqualSliceSet() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
-	dave := &person{name: "dave", id: 32}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
+	dave := &person{Name: "dave", ID: 32}
 
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
@@ -325,9 +326,9 @@ func ExampleHashSet_EqualSliceSet() {
 }
 
 func ExampleHashSet_Copy() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 	c := s.Copy()
 
@@ -338,14 +339,14 @@ func ExampleHashSet_Copy() {
 }
 
 func ExampleHashSet_Slice() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
 	slice := s.Slice()
 	sort.Slice(slice, func(a, b int) bool {
-		return slice[a].id < slice[b].id
+		return slice[a].ID < slice[b].ID
 	})
 
 	fmt.Println(slice)
@@ -355,13 +356,50 @@ func ExampleHashSet_Slice() {
 }
 
 func ExampleHashSet_String() {
-	anna := &person{name: "anna", id: 94}
-	bill := &person{name: "bill", id: 50}
-	carl := &person{name: "carl", id: 10}
+	anna := &person{Name: "anna", ID: 94}
+	bill := &person{Name: "bill", ID: 50}
+	carl := &person{Name: "carl", ID: 10}
 	s := HashSetFrom[*person, string]([]*person{anna, bill, carl})
 
 	fmt.Println(s.String())
 
 	// Output:
 	// [anna bill carl]
+}
+
+// TODO: will not work as long as [HashFunc] cannot be derived from the type parameters.
+func ExampleHashSet_UnmarshalJSON() {
+	// type Foo struct {
+	// 	Persons *HashSet[*person, string] `json:"persons"`
+	// }
+
+	// in := `{"persons":[{"Name":"anna","ID":94},{"Name":"bill","ID":50},{"Name":"bill","ID":50},{"Name":"carl","ID":10}]}`
+	// var out Foo
+
+	// _ = json.Unmarshal([]byte(in), &out)
+
+	// fmt.Println(out.Persons)
+
+	// Output:
+}
+
+func ExampleHashSet_MarshalJSON() {
+	type Foo struct {
+		Persons *HashSet[*person, string] `json:"persons"`
+	}
+
+	f := Foo{
+		Persons: HashSetFrom([]*person{
+			{Name: "anna", ID: 94},
+			{Name: "bill", ID: 50},
+			{Name: "carl", ID: 10},
+		}),
+	}
+
+	b, _ := json.Marshal(f)
+
+	fmt.Println(string(b))
+
+	// Output:
+	// {"persons":[{"Name":"anna","ID":94},{"Name":"bill","ID":50},{"Name":"carl","ID":10}]}
 }

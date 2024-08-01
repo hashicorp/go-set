@@ -4,6 +4,8 @@
 package set
 
 import (
+	"cmp"
+	"encoding/json"
 	"fmt"
 )
 
@@ -504,4 +506,37 @@ func ExampleTreeSet_BelowEqual() {
 	// [1]
 	// [1 2 3]
 	// [1 2 3 4 5]
+}
+
+// TODO: will not work as long as [CompareFunc] cannot be derived from the type parameters.
+func ExampleTreeSet_UnmarshalJSON() {
+	// type Foo struct {
+	// 	Colors *TreeSet[string] `json:"colors"`
+	// }
+
+	// in := `{"colors":["red","green","green","blue"]}`
+	// var out Foo
+
+	// _ = json.Unmarshal([]byte(in), &out)
+
+	// fmt.Println(out.Colors)
+
+	// Output:
+}
+
+func ExampleTreeSet_MarshalJSON() {
+	type Foo struct {
+		Colors *TreeSet[string] `json:"colors"`
+	}
+
+	f := Foo{
+		Colors: TreeSetFrom([]string{"red", "green", "blue"}, cmp.Compare[string]),
+	}
+
+	b, _ := json.Marshal(f)
+
+	fmt.Println(string(b))
+
+	// Output:
+	// {"colors":["blue","green","red"]}
 }
