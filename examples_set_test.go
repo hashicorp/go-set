@@ -4,6 +4,7 @@
 package set
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 )
@@ -255,4 +256,37 @@ func ExampleSet_String() {
 
 	// Output:
 	// [blue green red]
+}
+
+func ExampleSet_UnmarshalJSON() {
+	type Foo struct {
+		Colors *Set[string] `json:"colors"`
+	}
+
+	in := `{"colors":["red","green","green","blue"]}`
+	var out Foo
+
+	_ = json.Unmarshal([]byte(in), &out)
+
+	fmt.Println(out.Colors)
+
+	// Output:
+	// [blue green red]
+}
+
+func ExampleSet_MarshalJSON() {
+	type Foo struct {
+		Colors *Set[string] `json:"colors"`
+	}
+
+	f := Foo{
+		Colors: From([]string{"red", "green", "blue"}),
+	}
+
+	b, _ := json.Marshal(f)
+
+	fmt.Println(string(b))
+
+	// Output:
+	// {"colors":["red","green","blue"]}
 }
