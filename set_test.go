@@ -5,7 +5,6 @@ package set
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/shoenig/test/must"
@@ -750,16 +749,13 @@ func TestSet_EqualSliceSet(t *testing.T) {
 	})
 }
 
-func TestSet_ForEach(t *testing.T) {
-	s := From[int]([]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
-	var result []int
-	evens := func(i int) bool {
-		if i%2 == 0 {
-			result = append(result, i)
-		}
-		return true
+func TestSet_Items(t *testing.T) {
+	s := From[int]([]int{1, 2, 3, 4, 5})
+
+	sum := 0
+	for element := range s.Items() {
+		sum += element
 	}
-	s.ForEach(evens)
-	sort.Ints(result)
-	must.Eq(t, []int{0, 2, 4, 6, 8}, result)
+
+	must.Eq(t, 15, sum)
 }

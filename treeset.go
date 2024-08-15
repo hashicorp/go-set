@@ -5,6 +5,7 @@ package set
 
 import (
 	"fmt"
+	"iter"
 )
 
 // CompareFunc represents a function that compares two elements.
@@ -107,12 +108,11 @@ func (s *TreeSet[T]) InsertSlice(items []T) bool {
 // Return true if s was modified (at least one item of o was not already in s), false otherwise.
 func (s *TreeSet[T]) InsertSet(col Collection[T]) bool {
 	modified := false
-	col.ForEach(func(item T) bool {
+	for item := range col.Items() {
 		if s.Insert(item) {
 			modified = true
 		}
-		return true
-	})
+	}
 	return modified
 }
 
@@ -325,10 +325,9 @@ func (s *TreeSet[T]) Empty() bool {
 // Slice returns the elements of s as a slice, in order.
 func (s *TreeSet[T]) Slice() []T {
 	result := make([]T, 0, s.Size())
-	s.ForEach(func(element T) bool {
-		result = append(result, element)
-		return true
-	})
+	for item := range s.Items() {
+		result = append(result, item)
+	}
 	return result
 }
 
@@ -499,22 +498,29 @@ func (s *TreeSet[T]) String() string {
 
 // StringFunc creates a string representation of s, using f to transform each
 // element into a string. The result contains elements in order.
-func (s *TreeSet[T]) StringFunc(f func(element T) string) string {
+func (s *TreeSet[T]) StringFunc(f func(T) string) string {
 	l := make([]string, 0, s.Size())
-	s.ForEach(func(element T) bool {
-		l = append(l, f(element))
-		return true
-	})
+	for item := range s.Items() {
+		l = append(l, f(item))
+	}
 	return fmt.Sprintf("%s", l)
 }
 
-// ForEach iterates every element in s, applying the given visit function.
+// Items returns a generator function for iterating each element in s by using
+// the range keyword.
 //
-// If the visit function returns false at any point, iteration is halted.
-func (s *TreeSet[T]) ForEach(visit func(T) bool) {
-	s.infix(func(n *node[T]) (next bool) {
-		return visit(n.element)
-	}, s.root)
+//	for i, element := range s.Items() { ... }
+func (s *TreeSet[T]) Items() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		iter := s.iterate()
+		n := iter()
+		for i := 0; n != nil; i++ {
+			if !yield(n.element) {
+				return
+			}
+			n = iter()
+		}
+	}
 }
 
 // Red-Black Tree Invariants
