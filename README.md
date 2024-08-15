@@ -1,6 +1,6 @@
 # go-set
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/hashicorp/go-set.svg)](https://pkg.go.dev/github.com/hashicorp/go-set/v2)
+[![Go Reference](https://pkg.go.dev/badge/github.com/hashicorp/go-set.svg)](https://pkg.go.dev/github.com/hashicorp/go-set/v3)
 [![Run CI Tests](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml/badge.svg)](https://github.com/hashicorp/go-set/actions/workflows/ci.yaml)
 [![GitHub](https://img.shields.io/github/license/hashicorp/go-set)](LICENSE)
 
@@ -44,16 +44,16 @@ This package is not thread-safe.
 
 # Documentation
 
-The full `go-set` package reference is available on [pkg.go.dev](https://pkg.go.dev/github.com/hashicorp/go-set/v2).
+The full `go-set` package reference is available on [pkg.go.dev](https://pkg.go.dev/github.com/hashicorp/go-set/v3).
 
 # Install
 
 ```shell
-go get github.com/hashicorp/go-set/v2@latest
+go get github.com/hashicorp/go-set/v3@latest
 ```
 
 ```shell
-import "github.com/hashicorp/go-set/v2"
+import "github.com/hashicorp/go-set/v3"
 ```
 
 # Motivation
