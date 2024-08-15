@@ -3,6 +3,8 @@
 
 package set
 
+import "iter"
+
 // Collection is a minimal common interface that all sets implement.
 
 // Fundamental set operations and familiar utility methods are part of this
@@ -84,6 +86,8 @@ type Collection[T any] interface {
 
 	// Slice returns a slice of all elements in the set.
 	//
+	// For iterating elements, consider using Items() instead.
+	//
 	// Note: order of elements depends on the underlying implementation.
 	Slice() []T
 
@@ -110,11 +114,13 @@ type Collection[T any] interface {
 	// the same elements, where the slice must not contain duplicates.
 	EqualSliceSet([]T) bool
 
-	// ForEach will call the callback function for each element in the set.
-	// If the callback returns false, the iteration will stop.
+	// Items returns a generator function for use with the range keyword
+	// enabling iteration of each element in the set.
 	//
 	// Note: iteration order depends on the underlying implementation.
-	ForEach(func(T) bool)
+	//
+	//	for element := range s.Items() { ... }
+	Items() iter.Seq[T]
 }
 
 // InsertSliceFunc inserts all elements from items into col, applying the transform
@@ -137,12 +143,11 @@ func InsertSliceFunc[T, E any](col Collection[T], items []E, transform func(elem
 // Returns true if b was modified as a result.
 func InsertSetFunc[T, E any](a Collection[T], b Collection[E], transform func(T) E) bool {
 	modified := false
-	a.ForEach(func(item T) bool {
+	for item := range a.Items() {
 		if b.Insert(transform(item)) {
 			modified = true
 		}
-		return true
-	})
+	}
 	return modified
 }
 
@@ -150,18 +155,16 @@ func InsertSetFunc[T, E any](a Collection[T], b Collection[E], transform func(T)
 // function to each element first.
 func SliceFunc[T, E any](s Collection[T], transform func(T) E) []E {
 	slice := make([]E, 0, s.Size())
-	s.ForEach(func(item T) bool {
+	for item := range s.Items() {
 		slice = append(slice, transform(item))
-		return true
-	})
+	}
 	return slice
 }
 
 func insert[T any](destination, col Collection[T]) {
-	col.ForEach(func(item T) bool {
+	for item := range col.Items() {
 		destination.Insert(item)
-		return true
-	})
+	}
 }
 
 func intersect[T any](destination, a, b Collection[T]) {
@@ -172,12 +175,11 @@ func intersect[T any](destination, a, b Collection[T]) {
 	if a.Size() < b.Size() {
 		big, small = b, a
 	}
-	small.ForEach(func(item T) bool {
+	for item := range small.Items() {
 		if big.Contains(item) {
 			destination.Insert(item)
 		}
-		return true
-	})
+	}
 }
 
 func containsSlice[T any](col Collection[T], items []T) bool {
@@ -201,35 +203,32 @@ func equalSet[T any](a, b Collection[T]) bool {
 
 	// look for any missing element
 	different := false
-	a.ForEach(func(item T) bool {
+	for item := range a.Items() {
 		if !b.Contains(item) {
 			different = true
 			return false // halt
 		}
-		return true // continue
-	})
+	}
 	return !different
 }
 
 func removeSet[T any](s, col Collection[T]) bool {
 	modified := false
-	col.ForEach(func(item T) bool {
+	for item := range col.Items() {
 		if s.Remove(item) {
 			modified = true
 		}
-		return true
-	})
+	}
 	return modified
 }
 
 func removeFunc[T any](col Collection[T], predicate func(T) bool) bool {
 	remove := make([]T, 0)
-	col.ForEach(func(item T) bool {
+	for item := range col.Items() {
 		if predicate(item) {
 			remove = append(remove, item)
 		}
-		return true
-	})
+	}
 	return col.RemoveSlice(remove)
 }
 
@@ -238,12 +237,11 @@ func subset[T any](a, b Collection[T]) bool {
 		return false
 	}
 	missing := false
-	b.ForEach(func(item T) bool {
+	for item := range b.Items() {
 		if !a.Contains(item) {
 			missing = true
 			return false // stop iteration
 		}
-		return true
-	})
+	}
 	return !missing
 }

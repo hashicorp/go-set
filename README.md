@@ -9,9 +9,15 @@ generic [Set](https://en.wikipedia.org/wiki/Set) implementations for Go.
 
 ---
 
-**PSA** October 2023 - The **v2** version of this package has been published, starting at
-tag version `v2.1.0`. A description of the changes including backwards incompatibilities
-can be found in https://github.com/hashicorp/go-set/issues/73
+**PSA** August 2024 - The **v3** version of this package has been published,
+starting at tag version `v3.0.0`. A description of the changes including
+backwards incompatibilities can be found in https://github.com/hashicorp/go-set/issues/90
+
+---
+
+**PSA** October 2023 - The **v2** version of this package has been published,
+starting at tag version `v2.1.0`. A description of the changes including
+backwards incompatibilities can be found in https://github.com/hashicorp/go-set/issues/73
 
 ---
 
@@ -113,17 +119,15 @@ It serves as a useful abstraction over the common methods implemented by each se
 
 ### Iteration
 
-Go still has no support for using `range` over user defined types. Until that becomes
-possible, each of `Set`, `HashSet`, and `TreeSet` implements a `ForEach` method for
-iterating each element in a set. The argument is a function that accepts an item from
-the set and returns a boolean, indicating whether iteration should be halted.
+Starting with `v3` each of `Set`, `HashSet`, and `TreeSet` implement an `Items`
+method. It can be used with the `range` keyword for iterating through each 
+element in the set.
 
 ```go
-// e.g. print each item in the set
-s.ForEach(func(item T) bool {
+// e.g. print each element in the set
+for _, item := range s.Items() {
   fmt.Println(item)
-  return true
-})
+}
 ```
 
 # Set Examples

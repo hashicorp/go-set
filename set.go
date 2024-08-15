@@ -8,6 +8,7 @@ package set
 
 import (
 	"fmt"
+	"iter"
 	"sort"
 )
 
@@ -89,12 +90,11 @@ func (s *Set[T]) InsertSlice(items []T) bool {
 // Return true if s was modified (at least one item of col was not already in s), false otherwise.
 func (s *Set[T]) InsertSet(col Collection[T]) bool {
 	modified := false
-	col.ForEach(func(item T) bool {
+	for item := range col.Items() {
 		if s.Insert(item) {
 			modified = true
 		}
-		return true
-	})
+	}
 	return modified
 }
 
@@ -295,13 +295,16 @@ func (s *Set[T]) UnmarshalJSON(data []byte) error {
 	return unmarshalJSON[T](s, data)
 }
 
-// ForEach iterates every element in s, applying the given visit function.
+// Items returns a generator function for iterating each element in s by using
+// the range keyword.
 //
-// If the visit returns false at any point, iteration is halted.
-func (s *Set[T]) ForEach(visit func(T) bool) {
-	for item := range s.items {
-		if !visit(item) {
-			return
+//	for element := range s.Items() { ... }
+func (s *Set[T]) Items() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for item := range s.items {
+			if !yield(item) {
+				return
+			}
 		}
 	}
 }
