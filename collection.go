@@ -202,14 +202,12 @@ func equalSet[T any](a, b Collection[T]) bool {
 	}
 
 	// look for any missing element
-	different := false
 	for item := range a.Items() {
 		if !b.Contains(item) {
-			different = true
-			return false // halt
+			return false
 		}
 	}
-	return !different
+	return true
 }
 
 func removeSet[T any](s, col Collection[T]) bool {
@@ -236,12 +234,12 @@ func subset[T any](a, b Collection[T]) bool {
 	if b.Size() > a.Size() {
 		return false
 	}
-	missing := false
+
 	for item := range b.Items() {
 		if !a.Contains(item) {
-			missing = true
-			return false // stop iteration
+			return false
 		}
 	}
-	return !missing
+
+	return true
 }
