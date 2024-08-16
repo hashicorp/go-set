@@ -13,6 +13,7 @@ generic [Set](https://en.wikipedia.org/wiki/Set) implementations for Go.
 starting at tag version `v3.0.0`. A description of the changes including
 backwards incompatibilities can be found in https://github.com/hashicorp/go-set/issues/90
 
+Requires `go1.23` or later.
 ---
 
 **PSA** October 2023 - The **v2** version of this package has been published,
