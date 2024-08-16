@@ -4,6 +4,7 @@
 package set
 
 import (
+	"cmp"
 	"sort"
 	"strconv"
 	"testing"
@@ -37,11 +38,11 @@ func TestInsertSliceFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		s := NewTreeSet[string](Compare[string])
+		s := NewTreeSet[string](cmp.Compare[string])
 		InsertSliceFunc[string](s, numbers, func(element int) string {
 			return strconv.Itoa(element)
 		})
-		invariants(t, s, Compare[string])
+		invariants(t, s, cmp.Compare[string])
 		must.SliceEqFunc(t, s.Slice(), []string{"1", "2", "3"}, func(a, b string) bool { return a == b })
 	})
 }
@@ -67,7 +68,7 @@ func TestSliceFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		s := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		s := TreeSetFrom[int]([]int{1, 2, 3}, cmp.Compare[int])
 		slice := SliceFunc[int](s, func(element int) string {
 			return strconv.Itoa(element)
 		})
@@ -105,7 +106,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("set -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[string](Compare[string])
+			b := NewTreeSet[string](cmp.Compare[string])
 			modified := InsertSetFunc[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})
@@ -154,7 +155,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("hashSet -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[int](Compare[int])
+			b := NewTreeSet[int](cmp.Compare[int])
 			modified := InsertSetFunc[*company, int](a, b, func(element *company) int {
 				return element.floor
 			})
@@ -174,7 +175,7 @@ func TestInsertSetFunc(t *testing.T) {
 	})
 
 	t.Run("treeSet", func(t *testing.T) {
-		a := TreeSetFrom[int]([]int{1, 2, 3}, Compare[int])
+		a := TreeSetFrom[int]([]int{1, 2, 3}, cmp.Compare[int])
 
 		t.Run("treeSet -> set", func(t *testing.T) {
 			b := New[string](3)
@@ -202,7 +203,7 @@ func TestInsertSetFunc(t *testing.T) {
 		})
 
 		t.Run("treeSet -> treeSet", func(t *testing.T) {
-			b := NewTreeSet[string](Compare[string])
+			b := NewTreeSet[string](cmp.Compare[string])
 			modified := InsertSetFunc[int, string](a, b, func(element int) string {
 				return strconv.Itoa(element)
 			})

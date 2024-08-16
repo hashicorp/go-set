@@ -106,11 +106,11 @@ implement an efficient hash function using a hash code based on prime multiples.
 
 The `go-set` package includes `TreeSet` for creating sorted sets. A `TreeSet` may
 be used with any type `T` as the comparison between elements is provided by implementing
-`CompareFunc[T]`. The `Compare[GoType]` helper provides a convenient implementation of
-`CompareFunc` for `builtin` types like `string` or `int`. A `TreeSet` is backed by
-an underlying balanced binary search tree, making operations like in-order traversal
-efficient, in addition to enabling functions like `Min()`, `Max()`, `TopK()`, and
-`BottomK()`.
+`CompareFunc[T]`. The standard library `cmp.Compare` function provides a convenient
+implementation of `CompareFunc` for `cmp.Ordered` types like `string` or `int`. A
+`TreeSet` is backed by an underlying balanced binary search tree, making operations
+like in-order traversal efficient, in addition to enabling functions like `Min()`,
+`Max()`, `TopK()`, and `BottomK()`.
 
 # Collection[T]
 
@@ -198,14 +198,10 @@ s.Insert(e1)
 
 Below are simple example usages of `TreeSet`
 
-(using the `Compare` helper to compare a built in `GoType`)
-
 ```go
 ts := NewTreeSet[int](Compare[int])
 ts.Insert(5)
 ```
-
-(using a custom `CompareFunc`)
 
 ```go
 type waypoint struct {
@@ -213,11 +209,12 @@ type waypoint struct {
     name     string
 }
 
-cmp := func(w1, w2 *waypoint) int {
+// compare implements CompareFunc
+compare := func(w1, w2 *waypoint) int {
     return w1.distance - w2.distance
 }
 
-ts := NewTreeSet[*waypoint](cmp)
+ts := NewTreeSet[*waypoint](compare)
 ts.Insert(&waypoint{distance: 42, name: "tango"})
 ts.Insert(&waypoint{distance: 13, name: "alpha"})
 ts.Insert(&waypoint{distance: 71, name: "xray"})

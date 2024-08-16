@@ -31,7 +31,7 @@ func ExampleCompare_contestant() {
 }
 
 func ExampleCmp_strings() {
-	s := NewTreeSet[string](Compare[string])
+	s := NewTreeSet[string](cmp.Compare[string])
 	s.Insert("red")
 	s.Insert("green")
 	s.Insert("blue")
@@ -47,7 +47,7 @@ func ExampleCmp_strings() {
 }
 
 func ExampleCmp_ints() {
-	s := NewTreeSet[int](Compare[int])
+	s := NewTreeSet[int](cmp.Compare[int])
 	s.Insert(50)
 	s.Insert(42)
 	s.Insert(100)
@@ -63,7 +63,7 @@ func ExampleCmp_ints() {
 }
 
 func ExampleTreeSet_Insert() {
-	s := TreeSetFrom[string]([]string{}, Compare[string])
+	s := TreeSetFrom[string]([]string{}, cmp.Compare[string])
 
 	fmt.Println(s)
 
@@ -78,7 +78,7 @@ func ExampleTreeSet_Insert() {
 }
 
 func ExampleTreeSet_InsertSlice() {
-	s := TreeSetFrom[string]([]string{}, Compare[string])
+	s := TreeSetFrom[string]([]string{}, cmp.Compare[string])
 
 	fmt.Println(s)
 
@@ -91,8 +91,8 @@ func ExampleTreeSet_InsertSlice() {
 }
 
 func ExampleTreeSet_InsertSet() {
-	s1 := TreeSetFrom[string]([]string{"red", "green"}, Compare[string])
-	s2 := TreeSetFrom[string]([]string{"green", "blue"}, Compare[string])
+	s1 := TreeSetFrom[string]([]string{"red", "green"}, cmp.Compare[string])
+	s2 := TreeSetFrom[string]([]string{"green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s1)
 	fmt.Println(s2)
@@ -108,7 +108,7 @@ func ExampleTreeSet_InsertSet() {
 }
 
 func ExampleTreeSet_Remove() {
-	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, Compare[string])
+	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s)
 
@@ -125,7 +125,7 @@ func ExampleTreeSet_Remove() {
 }
 
 func ExampleTreeSet_RemoveSlice() {
-	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, Compare[string])
+	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s)
 
@@ -142,8 +142,8 @@ func ExampleTreeSet_RemoveSlice() {
 }
 
 func ExampleTreeSet_RemoveSet() {
-	s1 := TreeSetFrom[string]([]string{"a", "b", "c", "d", "e", "f"}, Compare[string])
-	s2 := TreeSetFrom[string]([]string{"e", "z", "a"}, Compare[string])
+	s1 := TreeSetFrom[string]([]string{"a", "b", "c", "d", "e", "f"}, cmp.Compare[string])
+	s2 := TreeSetFrom[string]([]string{"e", "z", "a"}, cmp.Compare[string])
 
 	fmt.Println(s1)
 	fmt.Println(s2)
@@ -159,7 +159,7 @@ func ExampleTreeSet_RemoveSet() {
 }
 
 func ExampleTreeSet_RemoveFunc() {
-	s := TreeSetFrom[int](ints(20), Compare[int])
+	s := TreeSetFrom[int](ints(20), cmp.Compare[int])
 
 	fmt.Println(s)
 
@@ -176,7 +176,7 @@ func ExampleTreeSet_RemoveFunc() {
 }
 
 func ExampleTreeSet_Contains() {
-	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, Compare[string])
+	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s.Contains("green"))
 	fmt.Println(s.Contains("orange"))
@@ -187,7 +187,7 @@ func ExampleTreeSet_Contains() {
 }
 
 func ExampleTreeSet_ContainsSlice() {
-	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, Compare[string])
+	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s.ContainsSlice([]string{"red", "green"}))
 	fmt.Println(s.ContainsSlice([]string{"red", "orange"}))
@@ -198,9 +198,9 @@ func ExampleTreeSet_ContainsSlice() {
 }
 
 func ExampleTreeSet_Subset() {
-	s1 := TreeSetFrom[string]([]string{"a", "b", "c", "d", "e"}, Compare[string])
-	s2 := TreeSetFrom[string]([]string{"b", "d"}, Compare[string])
-	s3 := TreeSetFrom[string]([]string{"a", "z"}, Compare[string])
+	s1 := TreeSetFrom[string]([]string{"a", "b", "c", "d", "e"}, cmp.Compare[string])
+	s2 := TreeSetFrom[string]([]string{"b", "d"}, cmp.Compare[string])
+	s3 := TreeSetFrom[string]([]string{"a", "z"}, cmp.Compare[string])
 
 	fmt.Println(s1.Subset(s2))
 	fmt.Println(s1.Subset(s3))
@@ -211,7 +211,7 @@ func ExampleTreeSet_Subset() {
 }
 
 func ExampleTreeSet_Size() {
-	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, Compare[string])
+	s := TreeSetFrom[string]([]string{"red", "green", "blue"}, cmp.Compare[string])
 
 	fmt.Println(s.Size())
 
@@ -220,7 +220,7 @@ func ExampleTreeSet_Size() {
 }
 
 func ExampleTreeSet_Empty() {
-	s := TreeSetFrom[string]([]string{}, Compare[string])
+	s := TreeSetFrom[string]([]string{}, cmp.Compare[string])
 
 	fmt.Println(s.Empty())
 
@@ -234,9 +234,9 @@ func ExampleTreeSet_Empty() {
 }
 
 func ExampleTreeSet_Union() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
-	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
+	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, cmp.Compare[int])
 
 	fmt.Println(s.Union(t))
 	fmt.Println(s.Union(f))
@@ -247,9 +247,9 @@ func ExampleTreeSet_Union() {
 }
 
 func ExampleTreeSet_Difference() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
-	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
+	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, cmp.Compare[int])
 
 	fmt.Println(s.Difference(t))
 	fmt.Println(s.Difference(f))
@@ -260,9 +260,9 @@ func ExampleTreeSet_Difference() {
 }
 
 func ExampleTreeSet_Intersect() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
-	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
+	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, cmp.Compare[int])
 
 	fmt.Println(s.Intersect(t))
 	fmt.Println(s.Intersect(f))
@@ -273,9 +273,9 @@ func ExampleTreeSet_Intersect() {
 }
 
 func ExampleTreeSet_Equal() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
-	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
+	f := TreeSetFrom[int]([]int{1, 3, 5, 7, 9}, cmp.Compare[int])
 
 	fmt.Println(s.Equal(t))
 	fmt.Println(s.Equal(f))
@@ -286,7 +286,7 @@ func ExampleTreeSet_Equal() {
 }
 
 func ExampleTreeSet_EqualSlice() {
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
 
 	fmt.Println(t.EqualSlice([]int{1, 2, 3, 4, 5}))
 	fmt.Println(t.EqualSlice([]int{1, 1, 2, 3, 4, 5}))
@@ -299,7 +299,7 @@ func ExampleTreeSet_EqualSlice() {
 }
 
 func ExampleTreeSet_EqualSliceSet() {
-	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, Compare[int])
+	t := TreeSetFrom[int]([]int{5, 4, 3, 2, 1}, cmp.Compare[int])
 
 	fmt.Println(t.EqualSliceSet([]int{1, 2, 3, 4, 5}))
 	fmt.Println(t.EqualSliceSet([]int{1, 1, 2, 3, 4, 5}))
@@ -312,7 +312,7 @@ func ExampleTreeSet_EqualSliceSet() {
 }
 
 func ExampleTreeSet_Copy() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 	c := s.Copy()
 	s.Remove(2)
 	s.Remove(4)
@@ -326,7 +326,7 @@ func ExampleTreeSet_Copy() {
 }
 
 func ExampleTreeSet_Slice() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 	slice := s.Slice()
 
 	fmt.Println(slice)
@@ -338,7 +338,7 @@ func ExampleTreeSet_Slice() {
 }
 
 func ExampleTreeSet_String() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.String() == "[1 2 3 4 5]")
 
@@ -347,7 +347,7 @@ func ExampleTreeSet_String() {
 }
 
 func ExampleTreeSet_Min() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 	r := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, func(a int, b int) int {
 		return b - a
 	})
@@ -361,7 +361,7 @@ func ExampleTreeSet_Min() {
 }
 
 func ExampleTreeSet_Max() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 	r := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, func(a int, b int) int {
 		return b - a
 	})
@@ -375,7 +375,7 @@ func ExampleTreeSet_Max() {
 }
 
 func ExampleTreeSet_TopK() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.TopK(0))
 	fmt.Println(s.TopK(1))
@@ -390,7 +390,7 @@ func ExampleTreeSet_TopK() {
 }
 
 func ExampleTreeSet_BottomK() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.BottomK(0))
 	fmt.Println(s.BottomK(1))
@@ -405,7 +405,7 @@ func ExampleTreeSet_BottomK() {
 }
 
 func ExampleTreeSet_FirstAbove() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.FirstAbove(3))
 	fmt.Println(s.FirstAbove(5))
@@ -418,7 +418,7 @@ func ExampleTreeSet_FirstAbove() {
 }
 
 func ExampleTreeSet_FirstAboveEqual() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.FirstAboveEqual(3))
 	fmt.Println(s.FirstAboveEqual(5))
@@ -431,7 +431,7 @@ func ExampleTreeSet_FirstAboveEqual() {
 }
 
 func ExampleTreeSet_Above() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.Above(3))
 	fmt.Println(s.Above(5))
@@ -444,7 +444,7 @@ func ExampleTreeSet_Above() {
 }
 
 func ExampleTreeSet_AboveEqual() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.AboveEqual(3))
 	fmt.Println(s.AboveEqual(5))
@@ -457,7 +457,7 @@ func ExampleTreeSet_AboveEqual() {
 }
 
 func ExampleTreeSet_FirstBelow() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.FirstBelow(1))
 	fmt.Println(s.FirstBelow(3))
@@ -470,7 +470,7 @@ func ExampleTreeSet_FirstBelow() {
 }
 
 func ExampleTreeSet_FirstBelowEqual() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.FirstBelowEqual(1))
 	fmt.Println(s.FirstBelowEqual(3))
@@ -483,7 +483,7 @@ func ExampleTreeSet_FirstBelowEqual() {
 }
 
 func ExampleTreeSet_Below() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.Below(1))
 	fmt.Println(s.Below(3))
@@ -496,7 +496,7 @@ func ExampleTreeSet_Below() {
 }
 
 func ExampleTreeSet_BelowEqual() {
-	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, Compare[int])
+	s := TreeSetFrom[int]([]int{1, 2, 3, 4, 5}, cmp.Compare[int])
 
 	fmt.Println(s.BelowEqual(1))
 	fmt.Println(s.BelowEqual(3))
