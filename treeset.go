@@ -15,7 +15,7 @@ import (
 // 0 if the two parameters are equal
 // > 0 if the first parameters is greater than the second parameter
 //
-// Often T will be a type that satisfies cmp.Ordered, and can CompareFunc can
+// Often T will be a type that satisfies cmp.Ordered, and CompareFunc can
 // be implemented by using cmp.Compare.
 type CompareFunc[T any] func(T, T) int
 
