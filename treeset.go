@@ -14,28 +14,10 @@ import (
 // < 0 if the first parameter is less than the second parameter
 // 0 if the two parameters are equal
 // > 0 if the first parameters is greater than the second parameter
-type CompareFunc[T any] func(T, T) int
-
-// GoType represents a builtin type to Go. These types can be compared using
-// the CompareFunc[GoType] function.
-type GoType interface {
-	~string | ~int | ~uint | ~int64 | ~uint64 | ~int32 | ~uint32 | ~int16 | ~uint16 | ~int8 | ~uint8
-}
-
-// Compare is a convenience implementation of CompareFunc[GoType] that can be
-// used for comparison of types built-in to Go.
 //
-// Common to use with string, int, uint, etc.
-func Compare[T GoType](x, y T) int {
-	switch {
-	case x < y:
-		return -1
-	case x > y:
-		return 1
-	default:
-		return 0
-	}
-}
+// Often T will be a type that satisfies cmp.Ordered, and can CompareFunc can
+// be implemented by using cmp.Compare.
+type CompareFunc[T any] func(T, T) int
 
 // TreeSet provides a generic sortable set implementation for Go.
 // Enables fast storage and retrieval of ordered information. Most effective
