@@ -127,7 +127,7 @@ element in the set.
 
 ```go
 // e.g. print each element in the set
-for _, item := range s.Items() {
+for item := range s.Items() {
   fmt.Println(item)
 }
 ```
