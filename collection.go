@@ -84,6 +84,9 @@ type Collection[T any] interface {
 	// https://en.wikipedia.org/wiki/Intersection_(set_theory)
 	Intersect(Collection[T]) Collection[T]
 
+	// Copy creates a copy of the Collection.
+	Copy() Collection[T]
+
 	// Slice returns a slice of all elements in the set.
 	//
 	// For iterating elements, consider using Items() instead.
