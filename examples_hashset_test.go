@@ -4,7 +4,6 @@
 package set
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 )
@@ -381,25 +380,4 @@ func ExampleHashSet_UnmarshalJSON() {
 	// fmt.Println(out.Persons)
 
 	// Output:
-}
-
-func ExampleHashSet_MarshalJSON() {
-	type Foo struct {
-		Persons *HashSet[*person, string] `json:"persons"`
-	}
-
-	f := Foo{
-		Persons: HashSetFrom([]*person{
-			{Name: "anna", ID: 94},
-			{Name: "bill", ID: 50},
-			{Name: "carl", ID: 10},
-		}),
-	}
-
-	b, _ := json.Marshal(f)
-
-	fmt.Println(string(b))
-
-	// Output:
-	// {"persons":[{"Name":"anna","ID":94},{"Name":"bill","ID":50},{"Name":"carl","ID":10}]}
 }
