@@ -169,7 +169,16 @@ func (s *HashSet[T, H]) Contains(item T) bool {
 // If the slice is known to be set-like (no duplicates), EqualSlice provides
 // a more efficient implementation.
 func (s *HashSet[T, H]) ContainsSlice(items []T) bool {
-	return s.Equal(HashSetFromFunc[T, H](items, s.fn))
+	if len(items) == 0 {
+		return len(s.items) == 0
+	}
+	for _, item := range items {
+		hash := s.fn(item)
+		if _, exists := s.items[hash]; !exists {
+			return false
+		}
+	}
+	return true
 }
 
 // Subset returns whether col is a subset of s.
