@@ -163,11 +163,8 @@ func (s *HashSet[T, H]) Contains(item T) bool {
 	return exists
 }
 
-// ContainsSlice returns whether s contains the same set of of elements
-// that are in items. The elements of items may contain duplicates.
-//
-// If the slice is known to be set-like (no duplicates), EqualSlice provides
-// a more efficient implementation.
+// ContainsSlice returns true if all elements of items are in s, otherwise
+// false.
 func (s *HashSet[T, H]) ContainsSlice(items []T) bool {
 	if len(items) == 0 {
 		return len(s.items) == 0
