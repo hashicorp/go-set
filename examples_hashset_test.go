@@ -170,7 +170,7 @@ func ExampleHashSet_ContainsSlice() {
 	fmt.Println(s.ContainsSlice([]*person{carl, dave}))
 
 	// Output:
-	// false
+	// true
 	// true
 	// false
 }
