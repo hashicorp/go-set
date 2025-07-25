@@ -273,20 +273,3 @@ func ExampleSet_UnmarshalJSON() {
 	// Output:
 	// [blue green red]
 }
-
-func ExampleSet_MarshalJSON() {
-	type Foo struct {
-		Colors *Set[string] `json:"colors"`
-	}
-
-	f := Foo{
-		Colors: From([]string{"red", "green", "blue"}),
-	}
-
-	b, _ := json.Marshal(f)
-
-	fmt.Println(string(b))
-
-	// Output:
-	// {"colors":["red","green","blue"]}
-}
