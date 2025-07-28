@@ -301,7 +301,7 @@ func TestHashSet_ContainsSlice(t *testing.T) {
 	t.Run("some empty", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3})
 		b := make([]*company, 0)
-		must.False(t, a.ContainsSlice(b))
+		must.True(t, a.ContainsSlice(b))
 	})
 
 	t.Run("equal", func(t *testing.T) {
@@ -319,7 +319,7 @@ func TestHashSet_ContainsSlice(t *testing.T) {
 	t.Run("subset", func(t *testing.T) {
 		a := HashSetFrom[*company, string]([]*company{c1, c2, c3, c4, c5})
 		b := []*company{c2, c3, c4}
-		must.False(t, a.ContainsSlice(b))
+		must.True(t, a.ContainsSlice(b))
 	})
 
 	t.Run("superset", func(t *testing.T) {
