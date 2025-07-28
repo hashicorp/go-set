@@ -166,9 +166,6 @@ func (s *HashSet[T, H]) Contains(item T) bool {
 // ContainsSlice returns true if all elements of items are in s, otherwise
 // false.
 func (s *HashSet[T, H]) ContainsSlice(items []T) bool {
-	if len(items) == 0 {
-		return len(s.items) == 0
-	}
 	for _, item := range items {
 		hash := s.fn(item)
 		if _, exists := s.items[hash]; !exists {
