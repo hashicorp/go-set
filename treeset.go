@@ -6,6 +6,7 @@ package set
 import (
 	"fmt"
 	"iter"
+	"slices"
 )
 
 // CompareFunc represents a function that compares two elements.
@@ -463,11 +464,24 @@ func (s *TreeSet[T]) EqualSlice(items []T) bool {
 //
 // To detect if a slice is a subset of s, use ContainsSlice.
 func (s *TreeSet[T]) EqualSliceSet(items []T) bool {
-	// TODO optimize
 	if s.Size() != len(items) {
 		return false
 	}
-	return s.EqualSlice(items)
+	if s.Size() == 0 {
+		return true
+	}
+	sorted := make([]T, len(items))
+	copy(sorted, items)
+	slices.SortFunc(sorted, s.comparison)
+
+	iterS := s.iterate()
+	for _, item := range sorted {
+		n := iterS()
+		if s.comparison(n.element, item) != 0 {
+			return false
+		}
+	}
+	return true
 }
 
 // String creates a string representation of s, using "%v" printf formatting

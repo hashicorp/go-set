@@ -537,6 +537,60 @@ func TestTreeSet_EqualSlice(t *testing.T) {
 	})
 }
 
+func TestTreeSet_EqualSliceSet(t *testing.T) {
+	t.Run("empty empty", func(t *testing.T) {
+		ts := TreeSetFrom[int](nil, cmp.Compare[int])
+		must.True(t, ts.EqualSliceSet(nil))
+	})
+
+	t.Run("empty set full slice", func(t *testing.T) {
+		ts := TreeSetFrom[int](nil, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet([]int{1, 2, 3}))
+	})
+
+	t.Run("full set empty slice", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3}, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet(nil))
+	})
+
+	t.Run("single element match", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{42}, cmp.Compare[int])
+		must.True(t, ts.EqualSliceSet([]int{42}))
+	})
+
+	t.Run("single element mismatch", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{42}, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet([]int{7}))
+	})
+
+	t.Run("matching unsorted slice", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3, 4, 5, 6}, cmp.Compare[int])
+		must.True(t, ts.EqualSliceSet([]int{6, 3, 1, 5, 2, 4}))
+	})
+
+	t.Run("different middle", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3, 5, 6}, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet([]int{1, 2, 4, 5, 6}))
+	})
+
+	t.Run("duplicates in slice increase length", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3, 4}, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet([]int{1, 1, 2, 3, 4}))
+	})
+
+	t.Run("duplicates in slice same length", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3, 4}, cmp.Compare[int])
+		must.False(t, ts.EqualSliceSet([]int{1, 1, 2, 4}))
+	})
+
+	t.Run("does not mutate caller slice", func(t *testing.T) {
+		ts := TreeSetFrom[int]([]int{1, 2, 3}, cmp.Compare[int])
+		input := []int{3, 1, 2}
+		must.True(t, ts.EqualSliceSet(input))
+		must.Eq(t, []int{3, 1, 2}, input)
+	})
+}
+
 func TestTreeSet_Equal(t *testing.T) {
 	t.Run("empty empty", func(t *testing.T) {
 		t1 := TreeSetFrom[int](nil, cmp.Compare[int])
