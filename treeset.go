@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2022, 2025
+// Copyright IBM Corp. 2022, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 package set
@@ -613,7 +613,7 @@ func (s *TreeSet[T]) replaceChild(parent, previous, next *node[T]) {
 func (s *TreeSet[T]) insert(n *node[T]) bool {
 	var (
 		parent *node[T] = nil
-		tmp    *node[T] = s.root
+		tmp             = s.root
 	)
 
 	for tmp != nil {
@@ -829,8 +829,8 @@ func (s *TreeSet[T]) fixRedSibling(n *node[T], sibling *node[T]) {
 	sibling.color = black
 	n.parent.color = red
 
-	switch {
-	case n == n.parent.left:
+	switch n {
+	case n.parent.left:
 		s.rotateLeft(n.parent)
 	default:
 		s.rotateRight(n.parent)
@@ -865,10 +865,10 @@ func (s *TreeSet[T]) fixBlackSibling(n, sibling *node[T]) {
 
 func (s *TreeSet[T]) siblingOf(n *node[T]) *node[T] {
 	parent := n.parent
-	switch {
-	case n == parent.left:
+	switch n {
+	case parent.left:
 		return parent.right
-	case n == parent.right:
+	case parent.right:
 		return parent.left
 	default:
 		panic("bug: parent is not a child of its grandparent")

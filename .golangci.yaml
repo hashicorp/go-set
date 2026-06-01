@@ -1,17 +1,16 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-run:
-  timeout: 5m
+version: "2"
 linters:
   enable:
-   - gofmt
-   - errcheck
-   - errname
-   - errorlint
-   - bodyclose
-   - durationcheck
-   - exhaustive
-   - goconst
-   - whitespace
-
+    - bodyclose
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - goconst
+    - whitespace
+formatters:
+  enable:
+    - gofmt
