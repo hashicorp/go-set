@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2022, 2025
+// Copyright IBM Corp. 2022, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 package set
@@ -169,8 +169,8 @@ func insert[T any](destination, col Collection[T]) {
 
 func intersect[T any](destination, a, b Collection[T]) {
 	var (
-		big   Collection[T] = a
-		small Collection[T] = b
+		big   = a
+		small = b
 	)
 	if a.Size() < b.Size() {
 		big, small = b, a

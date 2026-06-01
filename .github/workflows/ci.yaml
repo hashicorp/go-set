@@ -29,9 +29,9 @@ jobs:
       - uses: hashicorp/setup-golang@v3
         with:
           version-file: go.mod
-      - uses: golangci/golangci-lint-action@3a919529898de77ec3da873e3063ca4b10e7f5cc # v3.7.0
+      - uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
         with:
-          version: v1.60.1
+          version: v2.11.4
           skip-cache: true
   run-tests:
     timeout-minutes: 10
