@@ -2,10 +2,26 @@
 # SPDX-License-Identifier: MPL-2.0
 
 version: 2
+
 updates:
-  - package-ecosystem: gomod
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
-    labels:
-      - "dependabot"
+      interval: "weekly"
+    commit-message:
+      prefix: "[chore] : "
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[chore] : "
+    groups:
+      go:
+        patterns:
+          - "*"
