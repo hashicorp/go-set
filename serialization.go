@@ -10,12 +10,15 @@ func marshalJSON[T any](s Collection[T]) ([]byte, error) {
 	return json.Marshal(s.Slice())
 }
 
-// unmarshalJSON will deserialize a json byte array into a Serializable[T]
+// unmarshalJSON replaces the contents of s with the JSON array in data.
 func unmarshalJSON[T any](s Collection[T], data []byte) error {
 	slice := make([]T, 0)
 	err := json.Unmarshal(data, &slice)
 	if err != nil {
 		return err
+	}
+	for _, item := range s.Slice() {
+		s.Remove(item)
 	}
 	s.InsertSlice(slice)
 	return nil
